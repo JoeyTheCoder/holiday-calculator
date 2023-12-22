@@ -1,0 +1,23 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Holiday calc
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Holiday blub</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+    <calendar [(events)]="eventSource" [(calendarMode)]="calendar.mode" [(currentDate)]="calendar.currentDate"
+      (onEventSelected)="onEventSelected($event)" (onTitleChanged)="onViewTitleChanged($event)"
+      (onTimeSelected)="onTimeSelected($event)" startHour="0" endHour="24" step="30" startingDayWeek="1"
+      allDayLabel="All Day" autoSelect="true" id="calendar">
+    </calendar>
+  </div>
+</ion-content>
