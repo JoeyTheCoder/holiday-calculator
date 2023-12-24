@@ -1,5 +1,5 @@
 {
-  "name": "holiday-calculator",
+  "name": "holidayCalculator",
   "integrations": {
     "capacitor": {}
   },

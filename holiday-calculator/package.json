@@ -13,6 +13,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-devkit/build-angular": "^17.0.8",
     "@angular/animations": "^17.0.2",
     "@angular/common": "^17.0.2",
     "@angular/compiler": "^17.0.2",
@@ -27,7 +28,6 @@
     "@capacitor/keyboard": "5.0.7",
     "@capacitor/status-bar": "5.0.6",
     "@ionic/angular": "^7.0.0",
-    "angular-calendar": "^0.31.0",
     "ionic2-calendar": "^2.2.1",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
@@ -35,7 +35,6 @@
     "zone.js": "~0.14.2"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^16.2.11",
     "@angular-eslint/builder": "^17.0.0",
     "@angular-eslint/eslint-plugin": "^17.0.0",
     "@angular-eslint/eslint-plugin-template": "^17.0.0",
