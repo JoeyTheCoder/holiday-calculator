@@ -1,0 +1,268 @@
+// Home page specific styling
+
+ion-header {
+  ion-toolbar {
+    --background: #000000;
+    --color: white;
+  }
+}
+
+ion-content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --background: linear-gradient(135deg, #3A1C71 0%, #D76D77 50%, #FFAF7B 100%);
+}
+
+// Results styling
+.result-card {
+  border-left: 4px solid #0056b3;
+}
+
+// Make the vacation days input stand out
+ion-input[type="number"] {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+// Add a bit of spacing between components
+app-canton-selector,
+app-holiday-calendar {
+  display: block;
+  margin-bottom: 20px;
+}
+
+// Calculate button should stand out
+ion-button[expand="block"] {
+  margin-top: 20px;
+  height: 48px;
+  font-size: 1.1rem;
+  --background: #0056b3;
+  --box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
+}
+
+// Enhance the results card
+
+.results-card {
+  margin-top: 32px;
+  border-left: 4px solid #0056b3;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+// Summary statistics styling
+.optimization-summary {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 24px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0056b3;
+    line-height: 1.2;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 4px;
+  }
+}
+
+// Vacation periods
+.vacation-periods {
+  h4 {
+    margin: 24px 0 16px;
+    color: #333;
+    font-size: 1.2rem;
+  }
+}
+
+.vacation-period {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f0f7ff;
+  border-bottom: 1px solid #d0e1f9;
+}
+
+.period-dates {
+  font-weight: 500;
+  
+  .period-date {
+    color: #0056b3;
+  }
+  
+  .period-to {
+    margin: 0 8px;
+    color: #666;
+  }
+}
+
+.period-days {
+  font-weight: 600;
+  color: #0056b3;
+  padding: 4px 10px;
+  background-color: rgba(0, 86, 179, 0.1);
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+// Timeline visualization
+.period-timeline {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.timeline-days {
+  display: flex;
+  overflow-x: auto;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+}
+
+.timeline-day {
+  min-width: 40px;
+  height: 40px;
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  position: relative;
+  
+  &.weekend {
+    background-color: #f0f0f0;
+  }
+  
+  &.holiday {
+    background-color: rgba(204, 0, 0, 0.1);
+    border: 1px solid #cc0000;
+  }
+  
+  &.vacation {
+    background-color: rgba(0, 86, 179, 0.1);
+    border: 1px solid #0056b3;
+  }
+  
+  &.workday {
+    background-color: white;
+    border: 1px dashed #ccc;
+  }
+  
+  .day-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+}
+
+// Timeline legend
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 3px;
+  
+  &.weekend {
+    background-color: #f0f0f0;
+  }
+  
+  &.holiday {
+    background-color: rgba(204, 0, 0, 0.1);
+    border: 1px solid #cc0000;
+  }
+  
+  &.vacation {
+    background-color: rgba(0, 86, 179, 0.1);
+    border: 1px solid #0056b3;
+  }
+}
+
+// Period statistics
+.period-stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fafafa;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .stat-label {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+// Share button
+.share-button {
+  margin-top: 24px;
+  --background: #28a745;
+  --background-hover: #218838;
+}
+
+// Make the timeline scroll more naturally on mobile
+@media (max-width: 768px) {
+  .timeline-days {
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  
+  .period-stats {
+    flex-direction: column;
+    gap: 8px;
+    
+    .stat {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      
+      .stat-value {
+        font-size: 1rem;
+      }
+    }
+  }
+}

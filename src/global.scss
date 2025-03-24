@@ -1,0 +1,136 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+// Global styling for the entire app
+
+// App background
+ion-content {
+  --background: black;
+}
+
+// Card styling for all components
+ion-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 16px;
+  overflow: hidden;
+}
+
+ion-card-title {
+  color: #333;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+ion-card-subtitle {
+  color: #0056b3;
+  font-size: 1rem;
+}
+
+ion-card-content {
+  padding: 16px;
+  color: #333;
+}
+
+// Button styling
+ion-button {
+  --background: #0056b3;
+  --background-hover: #003d82;
+  --color: white;
+  font-weight: 500;
+  --border-radius: 6px;
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+ion-button.button-clear {
+  --color: #0056b3;
+}
+
+// Input styling
+ion-item {
+  --background: white;
+  --border-color: #e0e0e0;
+  --highlight-color-focused: #0056b3;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+ion-input {
+  --color: #333;
+  --placeholder-color: #999;
+}
+
+ion-label {
+  color: #333;
+  font-weight: 500;
+}
+
+// Select elements
+ion-select {
+  --placeholder-color: #333;
+  --placeholder-opacity: 1;
+}
+
+// List styling
+ion-list {
+  background: white;
+}
+
+// Add a subtle white Swiss cross pattern to the background (optional)
+ion-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+// Enhance header visibility
+ion-header ion-toolbar {
+  --background: rgba(179, 0, 27, 0.95);
+  --color: white;
+}

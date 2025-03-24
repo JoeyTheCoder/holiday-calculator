@@ -1,0 +1,41 @@
+// For information on how to create your own theme, please see:
+// http://ionicframework.com/docs/theming/
+
+:root {
+  // Primary colors
+  --ion-color-primary: #0056b3;
+  --ion-color-primary-rgb: 0, 86, 179;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #004c9e;
+  --ion-color-primary-tint: #1a67bb;
+  
+  // Danger color (for holidays)
+  --ion-color-danger: #cc0000;
+  --ion-color-danger-rgb: 204, 0, 0;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #b40000;
+  --ion-color-danger-tint: #d11a1a;
+  
+  // Swiss-inspired red background
+  --ion-background-color: #D80027;
+  --ion-background-color-rgb: 216, 0, 39;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+  
+  // Card colors remain white to stand out against the red background
+  --ion-card-background: #ffffff;
+}
+
+// Dark mode would already have dark backgrounds, so we just need to ensure 
+// our components still use white backgrounds in dark mode
+@media (prefers-color-scheme: dark) {
+  body {
+    --ion-card-background: #ffffff;
+    --ion-item-background: #ffffff;
+    // Keep the Swiss red even in dark mode
+    --ion-background-color: white;
+    --ion-text-color: black;
+  }
+}

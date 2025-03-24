@@ -1,0 +1,55 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Holiday Calendar</ion-card-title>
+    <ion-card-subtitle>
+      Click on dates to add/remove holidays for your calculation
+    </ion-card-subtitle>
+  </ion-card-header>
+  
+  <ion-card-content>
+    <div class="calendar-controls">
+      <ion-button fill="clear" (click)="prevMonth()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+      <div class="month-year">{{ monthNames[currentMonth] }} {{ year }}</div>
+      <ion-button fill="clear" (click)="nextMonth()">
+        <ion-icon name="arrow-forward"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="calendar-grid">
+      <div class="weekdays">
+        <div *ngFor="let day of weekDays" class="weekday">{{ day }}</div>
+      </div>
+      
+      <div class="days">
+        <div *ngFor="let day of calendarDays" 
+             class="day" 
+             [class.current-month]="day.isCurrentMonth"
+             [class.today]="day.isToday"
+             [class.holiday]="day.isHoliday && !day.isRemovedHoliday"
+             [class.custom-holiday]="day.isCustomHoliday"
+             [class.removed-holiday]="day.isRemovedHoliday"
+             (click)="onDayClick(day)">
+          <div class="day-number">{{ day.date.getDate() }}</div>
+          <div *ngIf="(day.isHoliday && !day.isRemovedHoliday) || day.isCustomHoliday" class="holiday-indicator"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <div class="legend-color holiday"></div>
+        <div class="legend-text">Public Holiday</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color custom-holiday"></div>
+        <div class="legend-text">Custom Holiday</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color removed-holiday"></div>
+        <div class="legend-text">Removed Holiday</div>
+      </div>
+    </div>
+  </ion-card-content>
+</ion-card>

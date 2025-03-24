@@ -1,0 +1,7 @@
+{
+  "name": "holiday-calculator",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

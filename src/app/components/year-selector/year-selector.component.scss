@@ -1,0 +1,17 @@
+// Styling for the year selector component
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-select {
+  width: 100%;
+  max-width: 100%;
+  font-weight: 500;
+  --placeholder-color: #0056b3;
+  --color: #000000;
+}
+
+ion-card-content {
+  padding-top: 8px;
+} 

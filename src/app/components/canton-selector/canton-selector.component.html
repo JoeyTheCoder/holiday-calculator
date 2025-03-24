@@ -1,0 +1,16 @@
+
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Select Your Canton</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-item>
+      <ion-label>Canton</ion-label>
+      <ion-select [(ngModel)]="selectedCanton" (ionChange)="onCantonChange()">
+        <ion-select-option *ngFor="let canton of cantons" [value]="canton.code">
+          {{ canton.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card-content>
+</ion-card>
