@@ -26,6 +26,14 @@ Created by JoeyTheCoder - feel free to reach out with questions or suggestions!
 
 ---
 
+To-Do:
+
+- add weekdays in visualisation
+
+- check algorithm for schibete
+
+- add email button for invitation of single blocks
+
 Enjoy planning your perfect holiday!
 
 Cheers JoeyTheCoder

@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 interface Holiday {
   name: string;
@@ -40,6 +40,12 @@ export class HolidayService {
   constructor(@Optional() private http: HttpClient) {}
 
   isPublicHoliday(date: Date, canton: string = 'ZH'): boolean {
+    // First check if it's a weekend - if so, return false regardless
+    // This fixes the issue with holidays on weekends
+    if (this.isWeekend(date)) {
+      return false;
+    }
+    
     // Ensure we're using a Date object
     const checkDate = new Date(date);
     
@@ -47,9 +53,6 @@ export class HolidayService {
     const month = String(checkDate.getMonth() + 1).padStart(2, '0');
     const day = String(checkDate.getDate()).padStart(2, '0');
     const dateStr = `${month}-${day}`;
-    
-    // Debug output to verify date format
-    // console.log(`Checking if ${checkDate.toDateString()} (${dateStr}) is a holiday in ${canton}`);
     
     // Find any holiday matching the date and canton
     const isHoliday = this.holidays.some(holiday => {
@@ -60,9 +63,6 @@ export class HolidayService {
       // Match the date string
       return holiday.date === dateStr && cantonMatch;
     });
-    
-    // Debug output to verify result
-    // if (isHoliday) console.log(`${checkDate.toDateString()} is a holiday!`);
     
     return isHoliday;
   }
@@ -94,8 +94,14 @@ export class HolidayService {
     customHolidays: Date[] = [],
     removedHolidays: Date[] = []
   ): Observable<any> {
+    console.log('------- VACATION OPTIMIZER INPUT -------');
+    console.log(`Canton: ${canton}, Available Days: ${availableDays}, Year: ${year}`);
+    console.log(`Custom Holidays: ${customHolidays.length}, Removed Holidays: ${removedHolidays.length}`);
+    
     return this.getHolidaysForCanton(canton, year).pipe(
       map(holidays => {
+        console.log(`Holidays for canton ${canton}: `, holidays);
+        
         // Convert holidays to Date objects
         let holidayDates = holidays.map(h => {
           const [y, m, d] = h.date.split('-').map(Number);
@@ -114,8 +120,12 @@ export class HolidayService {
           )
         );
         
+        console.log(`Total holidays after customization: ${holidayDates.length}`);
+        
         // Find potential vacation periods
         const periodsToEvaluate = this.findPotentialVacationPeriods(holidayDates, year, availableDays, canton);
+        
+        console.log(`Number of candidate periods generated: ${periodsToEvaluate.length}`);
         
         // Sort by efficiency (days off per vacation day)
         periodsToEvaluate.sort((a, b) => b.efficiency - a.efficiency);
@@ -127,20 +137,33 @@ export class HolidayService {
         const totalDaysOff = optimalPeriods.reduce((sum, period) => sum + period.totalDaysOff, 0);
         const daysUsed = optimalPeriods.reduce((sum, period) => sum + period.daysUsed, 0);
         
-        return {
+        const result = {
           totalDaysOff: totalDaysOff,
           daysUsed: daysUsed,
           suggestedPeriods: optimalPeriods
         };
+        
+        console.log('------- VACATION OPTIMIZER OUTPUT -------');
+        console.log(`Total Days Off: ${totalDaysOff}`);
+        console.log(`Days Used: ${daysUsed}`);
+        console.log(`Number of suggested periods: ${optimalPeriods.length}`);
+        console.log('Suggested Periods:', JSON.stringify(optimalPeriods, null, 2));
+        
+        return result;
       })
     );
   }
 
   private findPotentialVacationPeriods(holidays: Date[], year: number, maxDaysToUse: number, canton: string = 'ZH'): VacationPeriod[] {
+    console.log('------- FINDING POTENTIAL VACATION PERIODS -------');
+    console.log(`Year: ${year}, Max Days: ${maxDaysToUse}, Canton: ${canton}`);
+    console.log(`Number of holidays: ${holidays.length}`);
+    
     const periods: VacationPeriod[] = [];
     
     // First add full work weeks (Monday-Friday)
-    const fullWeeks = this.findFullWorkWeeks(year, maxDaysToUse, canton);
+    const fullWeeks = this.findCompleteWorkWeeks(year, maxDaysToUse, canton);
+    console.log(`Generated ${fullWeeks.length} full work week periods`);
     periods.push(...fullWeeks);
     
     // Get all public holidays and weekends in the year
@@ -249,23 +272,55 @@ export class HolidayService {
       });
     }
     
+    console.log(`Total number of potential periods: ${periods.length}`);
     return periods;
   }
 
   private selectOptimalPeriods(candidatePeriods: VacationPeriod[], vacationDaysAvailable: number): VacationPeriod[] {
+    console.log('------- SELECTING OPTIMAL PERIODS -------');
+    console.log(`Candidate periods: ${candidatePeriods.length}, Days available: ${vacationDaysAvailable}`);
+    
     if (candidatePeriods.length === 0) return [];
     
-    // First, sort by score (which now includes bonuses for holidays and full weeks)
-    candidatePeriods.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
+    // First, categorize periods by whether they're "bridge" periods
+    const bridgePeriods = candidatePeriods.filter(period => {
+      // Check if this period contains a holiday
+      if (period.start instanceof Date && period.end instanceof Date) {
+        const start = period.start;
+        const end = period.end;
+        const canton = 'ZH'; // Default to ZH, but ideally this would be passed in
+        return this.countHolidaysInPeriod(start, end, canton) > 0;
+      }
+      return false;
+    });
+    
+    const nonBridgePeriods = candidatePeriods.filter(period => {
+      if (period.start instanceof Date && period.end instanceof Date) {
+        const start = period.start;
+        const end = period.end;
+        const canton = 'ZH'; // Default to ZH, but ideally this would be passed in
+        return this.countHolidaysInPeriod(start, end, canton) === 0;
+      }
+      return true;
+    });
+    
+    // Sort each category by score
+    bridgePeriods.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
+    nonBridgePeriods.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
+    
+    // Combine, prioritizing bridge periods
+    const sortedPeriods = [...bridgePeriods, ...nonBridgePeriods];
     
     // Add a flag to track which start/end date combinations we've already selected
-    // to avoid duplicates with different internal scores but same date ranges
     const selectedRanges = new Set<string>();
     const selectedPeriods: VacationPeriod[] = [];
     let daysRemaining = vacationDaysAvailable;
     
-    // Process periods in order of efficiency
-    for (const period of candidatePeriods) {
+    // Track months to ensure distribution
+    const monthsUsed = new Set<number>();
+    
+    // Process periods in order of priority
+    for (const period of sortedPeriods) {
       // Skip if we've already added this exact date range
       const startDate = period.start instanceof Date 
         ? period.start.toISOString().split('T')[0] 
@@ -307,13 +362,45 @@ export class HolidayService {
       // Skip if adding this period would exceed the available days
       if (period.daysUsed > daysRemaining) continue;
       
+      // Get the month of this period
+      const periodMonth = period.start instanceof Date 
+        ? period.start.getMonth() 
+        : new Date(period.start).getMonth();
+      
+      // If we already have 2 periods in this month and there are other months available,
+      // skip this period to encourage distribution (unless it's an exceptional deal)
+      const monthCount = Array.from(selectedPeriods).filter(p => {
+        const month = p.start instanceof Date 
+          ? p.start.getMonth() 
+          : new Date(p.start).getMonth();
+        return month === periodMonth;
+      }).length;
+      
+      // Skip if we already have 2 periods in this month, unless it's an exceptional deal
+      // (efficiency > 5 or contains multiple holidays)
+      const isExceptionalDeal = period.efficiency > 5 || 
+        (period.start instanceof Date && period.end instanceof Date && 
+         this.countHolidaysInPeriod(period.start, period.end, 'ZH') > 1);
+         
+      if (monthCount >= 2 && !isExceptionalDeal && monthsUsed.size < 6) {
+        continue;
+      }
+      
       // Add this period
       selectedPeriods.push(period);
       selectedRanges.add(rangeKey);
+      monthsUsed.add(periodMonth);
       daysRemaining -= period.daysUsed;
       
       // If we've used all available days, break
       if (daysRemaining <= 0) break;
+    }
+    
+    // Add a log at the end to see what was selected
+    console.log(`Selected ${selectedPeriods.length} optimal periods`);
+    if (selectedPeriods.length > 0) {
+      console.log('Top period scores:', selectedPeriods.map(p => p.score || p.efficiency));
+      console.log('Months used:', Array.from(monthsUsed).map(m => m + 1)); // +1 because months are 0-indexed
     }
     
     return selectedPeriods;
@@ -389,22 +476,37 @@ export class HolidayService {
     // Calculate base score (days off per vacation day)
     const totalDaysOff = this.countDays(start, end);
     const businessDays = this.countBusinessDays(start, end, canton);
-    const efficiency = totalDaysOff / businessDays;
+    const holidaysInPeriod = this.countHolidaysInPeriod(start, end, canton);
+    const vacationDaysNeeded = businessDays - holidaysInPeriod;
     
-    // Base score is the efficiency
+    // Skip periods that don't need vacation days
+    if (vacationDaysNeeded <= 0) return 0;
+    
+    // Base score is the efficiency (days off per vacation day)
+    const efficiency = totalDaysOff / vacationDaysNeeded;
     score = efficiency;
     
-    const isCompleteWeek = this.isCompleteWorkWeek(start, end);
-    if (isCompleteWeek) {
-      // Boost score for complete weeks
-      score += 0.5; // Add significant bonus for complete weeks
+    // Check if this is a "bridge" period (contains holidays)
+    if (holidaysInPeriod > 0) {
+      // Significant bonus for periods with holidays (bridges)
+      score += 1.5 * holidaysInPeriod; // Increased from 1.0
     }
     
-    // Additional score for periods with holidays
-    const holidaysInPeriod = this.countHolidaysInPeriod(start, end, canton);
-    if (holidaysInPeriod > 0) {
-      score += 0.3 * holidaysInPeriod; // Bonus for each holiday
+    // Add a stronger bonus for complete weeks
+    const isCompleteWeek = this.isCompleteWorkWeek(start, end);
+    if (isCompleteWeek) {
+      // Stronger bonus for complete weeks
+      score += 1.0; // Increased from 0.2
+      
+      // Extra bonus for complete weeks that include holidays
+      if (holidaysInPeriod > 0) {
+        score += 0.5 * holidaysInPeriod;
+      }
     }
+    
+    // Add month diversity bonus
+    const monthIndex = start.getMonth();
+    score += this.calculateMonthDiversityBonus(monthIndex);
     
     return score;
   }
@@ -466,7 +568,7 @@ export class HolidayService {
     const holidayPeriods = this.findPeriodsAroundHolidays(year, canton);
     candidatePeriods.push(...holidayPeriods);
     
-    const completeWeekPeriods = this.findCompleteWorkWeeks(year, canton, vacationDaysAvailable);
+    const completeWeekPeriods = this.findCompleteWorkWeeks(year, vacationDaysAvailable, canton);
     candidatePeriods.push(...completeWeekPeriods);
     
     // Finally, add other candidate periods
@@ -546,69 +648,78 @@ export class HolidayService {
   }
 
   // Find complete work weeks
-  private findCompleteWorkWeeks(year: number, canton: string, maxDaysToUse: number): any[] {
-    const periods: any[] = [];
+  private findCompleteWorkWeeks(year: number, maxDaysToUse: number, canton: string): VacationPeriod[] {
+    console.log('------- FINDING FULL WORK WEEKS -------');
+    console.log(`Year: ${year}, Max Days: ${maxDaysToUse}, Canton: ${canton}`);
     
-    // For each month
-    for (let month = 0; month < 12; month++) {
-      // Get the first day of the month
-      const firstDay = new Date(year, month, 1);
-      
-      // Find all Mondays in this month
-      for (let day = 1; day <= 31; day++) {
-        const date = new Date(year, month, day);
-        
-        // Stop if we're in the next month
-        if (date.getMonth() !== month) break;
-        
-        // Check if it's a Monday
-        if (date.getDay() === 1) {
-          // Create a period from Monday to Friday
-          const start = new Date(date);
-          const end = new Date(date);
-          end.setDate(end.getDate() + 4); // Friday
-          
-          // Calculate details for this period
-          const totalDaysOff = this.countDays(start, end);
-          const businessDays = this.countBusinessDays(start, end, canton);
-          const holidaysInPeriod = this.countHolidaysInPeriod(start, end, canton);
-          const vacationDaysNeeded = businessDays - holidaysInPeriod;
-          
-          // Only consider weeks where we need to use vacation days
-          if (vacationDaysNeeded > 0 && vacationDaysNeeded <= maxDaysToUse) {
-            // Calculate true time off (including weekends before and after)
-            const extendedStart = new Date(start);
-            extendedStart.setDate(extendedStart.getDate() - 2); // Include weekend before
-            
-            const extendedEnd = new Date(end);
-            extendedEnd.setDate(extendedEnd.getDate() + 2); // Include weekend after
-            
-            const totalDaysOff = this.daysBetween(extendedStart, extendedEnd) + 1;
-            const efficiency = totalDaysOff / vacationDaysNeeded;
-            
-            // Apply month diversity bonus to avoid clustering
-            const monthIndex = start.getMonth();
-            const monthDiversityBonus = this.calculateMonthDiversityBonus(monthIndex);
-            
-            // Apply holidays bonus (more holidays = better deal)
-            const holidayBonus = holidaysInPeriod * 0.3;
-            
-            // Calculate final score with all bonuses
-            const score = efficiency + 0.5 + holidayBonus + monthDiversityBonus;
-            
-            periods.push({
-              start: new Date(start),
-              end: new Date(end),
-              daysUsed: vacationDaysNeeded,
-              totalDaysOff,
-              efficiency,
-              score
-            });
-          }
-        }
-      }
+    const periods: VacationPeriod[] = [];
+    
+    // Generate full Monday-Friday work weeks for the year
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
+    
+    // Find all Mondays in the year
+    const currentDate = new Date(startDate);
+    
+    // Move to the first Monday of the year
+    while (currentDate.getDay() !== 1) {
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     
+    // Generate all Monday-Friday periods
+    while (currentDate < endDate) {
+      // Monday is the start date
+      const weekStart = new Date(currentDate);
+      
+      // Friday is 4 days after Monday
+      const weekEnd = new Date(currentDate);
+      weekEnd.setDate(weekEnd.getDate() + 4);
+      
+      // Count holidays in this period
+      const holidaysInPeriod = this.countHolidaysInPeriod(weekStart, weekEnd, canton);
+      
+      // Consider all weeks, not just those with holidays
+      // Count business days that aren't holidays
+      const businessDays = this.countBusinessDays(weekStart, weekEnd, canton);
+      const vacationDaysNeeded = businessDays - holidaysInPeriod;
+      
+      // Only consider weeks where we need to use vacation days but not too many
+      if (vacationDaysNeeded > 0 && vacationDaysNeeded <= maxDaysToUse) {
+        // Calculate true time off (including weekends before and after)
+        const extendedStart = new Date(weekStart);
+        extendedStart.setDate(extendedStart.getDate() - 2); // Include weekend before
+        
+        const extendedEnd = new Date(weekEnd);
+        extendedEnd.setDate(extendedEnd.getDate() + 2); // Include weekend after
+        
+        const totalDaysOff = this.daysBetween(extendedStart, extendedEnd) + 1;
+        const efficiency = totalDaysOff / vacationDaysNeeded;
+        
+        // Apply month diversity bonus to avoid clustering
+        const monthIndex = weekStart.getMonth();
+        const monthDiversityBonus = this.calculateMonthDiversityBonus(monthIndex);
+        
+        // Apply holidays bonus (more holidays = better deal)
+        const holidayBonus = holidaysInPeriod > 0 ? holidaysInPeriod * 1.2 : 0; 
+        
+        // Calculate final score with all bonuses
+        const score = efficiency + holidayBonus + monthDiversityBonus;
+        
+        periods.push({
+          start: new Date(weekStart),
+          end: new Date(weekEnd),
+          daysUsed: vacationDaysNeeded,
+          totalDaysOff,
+          efficiency,
+          score
+        });
+      }
+      
+      // Move to next Monday
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+    
+    console.log(`Generated ${periods.length} full work week periods`);
     return periods;
   }
 
@@ -729,87 +840,17 @@ export class HolidayService {
     return periods;
   }
 
-  // Enhanced findFullWorkWeeks method with better scoring
-  private findFullWorkWeeks(year: number, maxDaysToUse: number, canton: string): VacationPeriod[] {
-    const periods: VacationPeriod[] = [];
-    
-    // Generate full Monday-Friday work weeks for the year
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year, 11, 31);
-    
-    // Find all Mondays in the year
-    const currentDate = new Date(startDate);
-    
-    // Move to the first Monday of the year
-    while (currentDate.getDay() !== 1) {
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    // Generate all Monday-Friday periods
-    while (currentDate < endDate) {
-      // Monday is the start date
-      const weekStart = new Date(currentDate);
-      
-      // Friday is 4 days after Monday
-      const weekEnd = new Date(currentDate);
-      weekEnd.setDate(weekEnd.getDate() + 4);
-      
-      // Count business days that aren't holidays
-      const businessDays = this.countBusinessDays(weekStart, weekEnd, canton);
-      const holidaysInPeriod = this.countHolidaysInPeriod(weekStart, weekEnd, canton);
-      const vacationDaysNeeded = businessDays - holidaysInPeriod;
-      
-      // Only consider weeks where we need to use vacation days
-      if (vacationDaysNeeded > 0 && vacationDaysNeeded <= maxDaysToUse) {
-        // Calculate true time off (including weekends before and after)
-        const extendedStart = new Date(weekStart);
-        extendedStart.setDate(extendedStart.getDate() - 2); // Include weekend before
-        
-        const extendedEnd = new Date(weekEnd);
-        extendedEnd.setDate(extendedEnd.getDate() + 2); // Include weekend after
-        
-        const totalDaysOff = this.daysBetween(extendedStart, extendedEnd) + 1;
-        const efficiency = totalDaysOff / vacationDaysNeeded;
-        
-        // Apply month diversity bonus to avoid clustering
-        const monthIndex = weekStart.getMonth();
-        const monthDiversityBonus = this.calculateMonthDiversityBonus(monthIndex);
-        
-        // Apply holidays bonus (more holidays = better deal)
-        const holidayBonus = holidaysInPeriod * 0.3;
-        
-        // Calculate final score with all bonuses
-        const score = efficiency + 0.5 + holidayBonus + monthDiversityBonus;
-        
-        periods.push({
-          start: new Date(weekStart),
-          end: new Date(weekEnd),
-          daysUsed: vacationDaysNeeded,
-          totalDaysOff,
-          efficiency,
-          score
-        });
-      }
-      
-      // Move to next Monday
-      currentDate.setDate(currentDate.getDate() + 7);
-    }
-    
-    return periods;
-  }
-
   // New method to calculate month diversity bonus
   private calculateMonthDiversityBonus(monthIndex: number): number {
-    // Encourage diversity by giving bonuses to summer/winter months
-    // This helps avoid clustering in January
+    // Stronger bonuses to encourage better distribution
     if (monthIndex >= 5 && monthIndex <= 8) { // June-September (summer)
-      return 0.4;
+      return 0.8; // Increased from 0.4
     } else if (monthIndex >= 11 || monthIndex <= 1) { // December-February (winter)
-      return 0.3;
+      return 0.6; // Increased from 0.3
     } else if (monthIndex >= 3 && monthIndex <= 4) { // April-May (spring)
-      return 0.2;
+      return 0.5; // Increased from 0.2
     } else {
-      return 0.1;
+      return 0.3; // Increased from 0.1
     }
   }
 } 
