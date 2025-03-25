@@ -178,6 +178,9 @@ export class HolidayService {
       // Skip holidays not in the selected year
       if (holiday.getFullYear() !== year) continue;
       
+      // Skip holidays that fall on weekends
+      if (this.isWeekend(holiday)) continue;
+      
       // Look at periods starting up to 7 days before the holiday
       for (let startOffset = -7; startOffset <= 0; startOffset++) {
         // Look at periods ending up to 7 days after the holiday
@@ -359,13 +362,64 @@ export class HolidayService {
       // Skip if there's an overlap
       if (overlapsWithSelected) continue;
       
+      // Check if we can extend this period to a full week if it's not already
+      // and we have enough days remaining
+      let periodToAdd = period;
+      
+      if (period.start instanceof Date && period.end instanceof Date) {
+        const start = period.start;
+        const end = period.end;
+        
+        // Check if this is not already a full Monday-Friday week
+        if (!this.isCompleteWorkWeek(start, end)) {
+          // Try to extend to a full week if possible
+          const monday = new Date(start);
+          while (monday.getDay() !== 1) { // Move back to Monday
+            monday.setDate(monday.getDate() - 1);
+          }
+          
+          const friday = new Date(end);
+          while (friday.getDay() !== 5) { // Move forward to Friday
+            friday.setDate(friday.getDate() + 1);
+          }
+          
+          // Calculate how many additional vacation days would be needed
+          const canton = 'ZH'; // Default to ZH
+          const extendedVacationDays = this.countVacationDays(monday, friday, 
+            this.holidays.filter(h => h.canton === 'all' || h.canton.split(',').includes(canton))
+              .map(h => {
+                const [m, d] = h.date.split('-').map(Number);
+                return new Date(start.getFullYear(), m - 1, d);
+              })
+          );
+          
+          // If we have enough days remaining and it's a reasonable extension
+          if (extendedVacationDays <= daysRemaining && 
+              extendedVacationDays - period.daysUsed <= 3) { // Don't add more than 3 extra days
+            
+            // Create the extended period
+            const totalDaysOff = 9; // Full week + weekends
+            const efficiency = totalDaysOff / extendedVacationDays;
+            
+            periodToAdd = {
+              start: monday,
+              end: friday,
+              daysUsed: extendedVacationDays,
+              totalDaysOff,
+              efficiency,
+              score: period.score // Keep original score for sorting purposes
+            };
+          }
+        }
+      }
+      
       // Skip if adding this period would exceed the available days
-      if (period.daysUsed > daysRemaining) continue;
+      if (periodToAdd.daysUsed > daysRemaining) continue;
       
       // Get the month of this period
-      const periodMonth = period.start instanceof Date 
-        ? period.start.getMonth() 
-        : new Date(period.start).getMonth();
+      const periodMonth = periodToAdd.start instanceof Date 
+        ? periodToAdd.start.getMonth() 
+        : new Date(periodToAdd.start).getMonth();
       
       // If we already have 2 periods in this month and there are other months available,
       // skip this period to encourage distribution (unless it's an exceptional deal)
@@ -378,19 +432,19 @@ export class HolidayService {
       
       // Skip if we already have 2 periods in this month, unless it's an exceptional deal
       // (efficiency > 5 or contains multiple holidays)
-      const isExceptionalDeal = period.efficiency > 5 || 
-        (period.start instanceof Date && period.end instanceof Date && 
-         this.countHolidaysInPeriod(period.start, period.end, 'ZH') > 1);
+      const isExceptionalDeal = periodToAdd.efficiency > 5 || 
+        (periodToAdd.start instanceof Date && periodToAdd.end instanceof Date && 
+         this.countHolidaysInPeriod(periodToAdd.start, periodToAdd.end, 'ZH') > 1);
          
       if (monthCount >= 2 && !isExceptionalDeal && monthsUsed.size < 6) {
         continue;
       }
       
       // Add this period
-      selectedPeriods.push(period);
+      selectedPeriods.push(periodToAdd);
       selectedRanges.add(rangeKey);
       monthsUsed.add(periodMonth);
-      daysRemaining -= period.daysUsed;
+      daysRemaining -= periodToAdd.daysUsed;
       
       // If we've used all available days, break
       if (daysRemaining <= 0) break;
