@@ -36,7 +36,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
   removedHolidays: Date[] = [];
   
   calendarDays: CalendarDay[] = [];
-  weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  weekDays: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
   
@@ -67,20 +67,24 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     }
   }
 
-  generateCalendarDays() {
+  generateCalendarDays(): void {
     this.calendarDays = [];
     
     // Create a date for the first day of the current month
     const firstDay = new Date(this.year, this.currentMonth, 1);
     const lastDay = new Date(this.year, this.currentMonth + 1, 0);
     
-    // Include days from the previous month to fill the first week
+    // Get day of week for the first day (0 = Sunday in JS)
     const firstDayOfWeek = firstDay.getDay();
-    if (firstDayOfWeek > 0) {
+    // Convert to European format (0 = Monday, 6 = Sunday)
+    const firstDayEuropeanWeekday = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    
+    // Include days from the previous month to fill the first week
+    if (firstDayEuropeanWeekday > 0) {
       const prevMonth = new Date(this.year, this.currentMonth, 0);
       const daysInPrevMonth = prevMonth.getDate();
       
-      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      for (let i = firstDayEuropeanWeekday - 1; i >= 0; i--) {
         const day = daysInPrevMonth - i;
         const date = new Date(this.year, this.currentMonth - 1, day);
         this.addCalendarDay(date, false);
@@ -94,9 +98,12 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     }
     
     // Include days from the next month to complete the last week
+    // In European format, the last day index is 6 (Sunday)
     const lastDayOfWeek = lastDay.getDay();
-    if (lastDayOfWeek < 6) {
-      for (let i = 1; i <= 6 - lastDayOfWeek; i++) {
+    const lastDayEuropeanWeekday = lastDayOfWeek === 0 ? 6 : lastDayOfWeek - 1;
+    
+    if (lastDayEuropeanWeekday < 6) {
+      for (let i = 1; i <= 6 - lastDayEuropeanWeekday; i++) {
         const date = new Date(this.year, this.currentMonth + 1, i);
         this.addCalendarDay(date, false);
       }
@@ -109,32 +116,39 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
                     date.getMonth() === today.getMonth() && 
                     date.getFullYear() === today.getFullYear();
     
-    // Check if it's a holiday
-    let isHoliday = false;
+    // Check if it's a holiday using the holiday service directly
+    const isHoliday = this.holidayService.isPublicHoliday(date, this.canton);
     let holidayName = '';
     
-    if (this.publicHolidays && this.publicHolidays.length > 0) {
+    // Get holiday name if available
+    if (isHoliday && this.publicHolidays && this.publicHolidays.length > 0) {
+      // Format month and day for comparison
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${month}-${day}`;
+      
       const holiday = this.publicHolidays.find(h => {
-        const holidayDate = new Date(h.date);
-        return holidayDate.getDate() === date.getDate() && 
-              holidayDate.getMonth() === date.getMonth() &&
-              holidayDate.getFullYear() === date.getFullYear();
+        // Extract month and day from the holiday date string
+        const hDate = new Date(h.date);
+        const hMonth = String(hDate.getMonth() + 1).padStart(2, '0');
+        const hDay = String(hDate.getDate()).padStart(2, '0');
+        const hDateStr = `${hMonth}-${hDay}`;
+        
+        return hDateStr === dateStr;
       });
       
       if (holiday) {
-        isHoliday = true;
         holidayName = holiday.name;
       }
     }
     
-    // Check if it's a custom holiday
+    // Check custom and removed holidays as before
     const isCustomHoliday = this.customHolidays.some(h => 
       h.getDate() === date.getDate() && 
       h.getMonth() === date.getMonth() && 
       h.getFullYear() === date.getFullYear()
     );
     
-    // Check if it's a removed holiday
     const isRemovedHoliday = this.removedHolidays.some(h => 
       h.getDate() === date.getDate() && 
       h.getMonth() === date.getMonth() && 
@@ -145,7 +159,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
       date: new Date(date),
       isCurrentMonth,
       isToday,
-      isHoliday,
+      isHoliday: isHoliday && !isRemovedHoliday, // Only count as holiday if not removed
       isCustomHoliday,
       isRemovedHoliday,
       holidayName
@@ -205,5 +219,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     
     // Regenerate calendar to reflect changes
     this.generateCalendarDays();
+  }
+
+  private getDaysOfWeek(): string[] {
+    // European format (Monday first)
+    return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
   }
 }

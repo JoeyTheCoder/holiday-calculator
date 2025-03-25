@@ -33,6 +33,10 @@
       
       <div class="vacation-period" *ngFor="let period of optimizationResult.suggestedPeriods">
         <div class="period-header">
+          <div class="period-type-tag" [class.holiday-period]="getPeriodDescription(period).includes('holiday')" 
+                                     [class.full-week]="getPeriodDescription(period).includes('Full work week')">
+            {{ getPeriodDescription(period) }}
+          </div>
           <div class="period-dates">
             <span class="period-date">{{ formatDate(period.start) }}</span>
             <span class="period-to">to</span>
@@ -51,6 +55,7 @@
                  [class.weekend]="day.isWeekend"
                  [class.holiday]="day.isHoliday"
                  [class.vacation]="day.isVacation"
+                 [class.extended-day]="day.isExtendedDay"
                  [title]="day.label">
               <div class="day-label">{{ day.shortLabel }}</div>
             </div>
@@ -68,6 +73,10 @@
             <div class="legend-item">
               <div class="legend-color vacation"></div>
               <div class="legend-text">Your Vacation</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color extended-day"></div>
+              <div class="legend-text">Extended Period</div>
             </div>
           </div>
         </div>
