@@ -144,15 +144,17 @@ ion-card {
 
 .timeline-day {
   min-width: 36px;
-  height: 36px;
+  height: 50px;
   border-radius: 4px;
   margin-right: 4px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: default;
+  padding: 4px 0;
   
   &.weekend {
     background-color: #e9ecef;
@@ -174,6 +176,16 @@ ion-card {
     border: 1px dashed #dee2e6;
     color: #6c757d;
     opacity: 0.7;
+  }
+  
+  .weekday-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  
+  .day-label {
+    font-size: 0.9rem;
   }
 }
 

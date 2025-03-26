@@ -57,6 +57,7 @@
                  [class.vacation]="day.isVacation"
                  [class.extended-day]="day.isExtendedDay"
                  [title]="day.label">
+              <div class="weekday-label">{{ day.weekdayLabel }}</div>
               <div class="day-label">{{ day.shortLabel }}</div>
             </div>
           </div>
@@ -89,10 +90,6 @@
           <div class="detail-item">
             <ion-icon name="time-outline"></ion-icon>
             <span>{{ period.totalDaysOff - period.daysUsed }} bonus days gained</span>
-          </div>
-          <div class="detail-item">
-            <ion-icon name="trending-up-outline"></ion-icon>
-            <span>{{ period.efficiency | number:'1.1-1' }}x efficiency</span>
           </div>
         </div>
       </div>

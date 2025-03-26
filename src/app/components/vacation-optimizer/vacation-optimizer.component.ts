@@ -4,7 +4,7 @@ import { IonIcon, IonCard, IonCardHeader, IonCardTitle,
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
-import { calendarOutline, timeOutline, trendingUpOutline } from 'ionicons/icons';
+import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { HolidayService } from '../../services/holiday.service';
 
 interface TimelineDay {
@@ -15,6 +15,7 @@ interface TimelineDay {
   isExtendedDay?: boolean;
   label: string;
   shortLabel: string;
+  weekdayLabel: string;
 }
 
 @Component({
@@ -37,7 +38,6 @@ export class VacationOptimizerComponent implements OnChanges {
     addIcons({
       calendarOutline,
       timeOutline,
-      trendingUpOutline
     });
   }
 
@@ -129,13 +129,14 @@ export class VacationOptimizerComponent implements OnChanges {
         isWeekend,
         isHoliday,
         isVacation,
-        isExtendedDay, // New property to track days outside the actual period
+        isExtendedDay,
         label: currentDate.toLocaleDateString('de-CH', { 
           weekday: 'long',
           month: 'short', 
           day: 'numeric'
         }),
-        shortLabel: currentDate.getDate().toString()
+        shortLabel: currentDate.getDate().toString(),
+        weekdayLabel: currentDate.toLocaleDateString('de-CH', { weekday: 'short' }).substring(0, 2)
       });
       
       // Move to the next day
