@@ -24,18 +24,32 @@ interface VacationPeriod {
 export class HolidayService {
   // Swiss cantonal holidays data
   private holidays: Holiday[] = [
-    // Example holidays - you'll want to expand this
-    { name: 'New Year', date: '01-01', canton: 'all' },
-    { name: 'Good Friday', date: '04-07', canton: 'all' },
-    { name: 'Easter Monday', date: '04-10', canton: 'all' },
-    { name: 'Labor Day', date: '05-01', canton: 'ZH,BS,SH,TG,TI,NE,JU' },
-    { name: 'Ascension Day', date: '05-18', canton: 'all' },
-    { name: 'Whit Monday', date: '05-29', canton: 'all' },
-    { name: 'Swiss National Day', date: '08-01', canton: 'all' },
-    { name: 'Christmas', date: '12-25', canton: 'all' },
-    { name: 'St Stephen\'s Day', date: '12-26', canton: 'all' }
-    // Add more canton-specific holidays
+    { "name": "Neujahr", "date": "01-01", "canton": "AG,AR,AI,BL,BS,BE,FR,GE,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TI,TG,UR,VD,VS,ZG,ZH" },
+    { "name": "Berchtoldstag", "date": "02-01", "canton": "AG,BE,JU,TG,VD" },
+    { "name": "Heilige Drei Könige", "date": "06-01", "canton": "GR,SZ,TI,UR" },
+    { "name": "St. Josef", "date": "03-19", "canton": "GR,LU,NW,SZ,TI,UR,VS,ZG" },
+    { "name": "Karfreitag", "date": "04-18", "canton": "AG,AR,AI,BL,BS,BE,FR,GE,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TG,UR,VD,ZG,ZH" },
+    { "name": "Ostersonntag", "date": "04-20", "canton": "all" },
+    { "name": "Ostermontag", "date": "04-21", "canton": "all" },
+    { "name": "Sechseläuten", "date": "04-28", "canton": "ZH" },
+    { "name": "Tag der Arbeit", "date": "05-01", "canton": "BL,BS,FR,JU,NE,SH,SO,TI,TG,ZH,Regional" },
+    { "name": "Auffahrt", "date": "05-29", "canton": "all" },
+    { "name": "Pfingstmontag", "date": "06-09", "canton": "AG,AR,AI,BL,BS,BE,GE,GL,GR,JU,SH,SZ,SO,SG,TI,TG,UR,VD,ZH" },
+    { "name": "Fronleichnam", "date": "06-19", "canton": "AG,AI,FR,GR,JU,LU,NW,OW,SZ,SO,TI,UR,VS,ZG,NE" },
+    { "name": "Peter und Paul", "date": "06-29", "canton": "GR,LU,Regional,TI" },
+    { "name": "Bundesfeier", "date": "08-01", "canton": "all" },
+    { "name": "Mariä Himmelfahrt", "date": "08-15", "canton": "AG,AI,FR,GR,NW,OW,SZ,SO,TI,UR,ZG" },
+    { "name": "Genfer Bettag", "date": "09-11", "canton": "GE" },
+    { "name": "Knabenschiessen", "date": "09-15", "canton": "ZH" },
+    { "name": "Eidgenössischer Dank-, Buss- und Bettag", "date": "09-21", "canton": "AG,AR,AI,BL,BS,BE,FR,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TI,TG,UR,VD,VS,ZG,ZH" },
+    { "name": "Mauritiustag", "date": "09-22", "canton": "AI,LU,Regional,SO" },
+    { "name": "St. Leodegar", "date": "10-02", "canton": "LU" },
+    { "name": "Allerheiligen", "date": "11-01", "canton": "AG,AI,FR,GL,GR,JU,LU,NW,OW,SZ,SO,SG,TI,UR,VS,ZG" },
+    { "name": "Mariä Empfängnis", "date": "12-08", "canton": "AG,AI,FR,GR,LU,NW,OW,SZ,SO,TI,UR,VS,ZG" },
+    { "name": "Weihnachten", "date": "12-25", "canton": "all" },
+    { "name": "Stephanstag", "date": "12-26", "canton": "AG,AR,AI,BL,BS,BE,GL,GR,LU,SZ,SO,SG,TI,TG,UR,ZH" }
   ];
+  
 
   constructor(@Optional() private http: HttpClient) {}
 
@@ -97,6 +111,7 @@ export class HolidayService {
     console.log('------- VACATION OPTIMIZER INPUT -------');
     console.log(`Canton: ${canton}, Available Days: ${availableDays}, Year: ${year}`);
     console.log(`Custom Holidays: ${customHolidays.length}, Removed Holidays: ${removedHolidays.length}`);
+    console.log('Removed Holidays:', removedHolidays.map(d => d.toISOString().split('T')[0])); // Log for debugging
     
     return this.getHolidaysForCanton(canton, year).pipe(
       map(holidays => {
@@ -111,216 +126,735 @@ export class HolidayService {
         // Add custom holidays
         holidayDates = [...holidayDates, ...customHolidays];
         
-        // Remove user-removed holidays
-        holidayDates = holidayDates.filter(holiday => 
-          !removedHolidays.some(removed => 
-            removed.getDate() === holiday.getDate() && 
-            removed.getMonth() === holiday.getMonth() && 
-            removed.getFullYear() === holiday.getFullYear()
-          )
-        );
+        // More stringent check for removed holidays
+        holidayDates = holidayDates.filter(holiday => {
+          const holidayString = holiday.toISOString().split('T')[0];
+          return !removedHolidays.some(removed => {
+            const removedString = removed.toISOString().split('T')[0];
+            return removedString === holidayString;
+          });
+        });
         
         console.log(`Total holidays after customization: ${holidayDates.length}`);
+        console.log('Remaining holidays:', holidayDates.map(d => d.toISOString().split('T')[0])); // Log for debugging
         
         // Find potential vacation periods
-        const periodsToEvaluate = this.findPotentialVacationPeriods(holidayDates, year, availableDays, canton);
+        const periodsToEvaluate = this.findPotentialVacationPeriods(holidayDates, year, availableDays, canton, removedHolidays);
         
         console.log(`Number of candidate periods generated: ${periodsToEvaluate.length}`);
         
-        // Sort by efficiency (days off per vacation day)
-        periodsToEvaluate.sort((a, b) => b.efficiency - a.efficiency);
+        // Sort by score instead of efficiency
+        periodsToEvaluate.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
         
         // Take top periods that don't exceed available days
         const optimalPeriods = this.selectOptimalPeriods(periodsToEvaluate, availableDays);
         
+        // Process the periods to add additional properties for UI display
+        const processedPeriods = optimalPeriods.map(period => {
+          // Create a new object with just the weekdays for actual vacation
+          const actualStartDate = period.start instanceof Date ? period.start : new Date(period.start);
+          const actualEndDate = period.end instanceof Date ? period.end : new Date(period.end);
+          
+          // Calculate the expanded period (including weekends) for "total days off" display
+          const expandedStartDate = new Date(actualStartDate);
+          const expandedEndDate = new Date(actualEndDate);
+          
+          // If the start day is Monday, include the weekend before
+          if (actualStartDate.getDay() === 1) { // Monday
+            expandedStartDate.setDate(expandedStartDate.getDate() - 2); // Include weekend before
+          }
+          
+          // If the end day is Friday, include the weekend after
+          if (actualEndDate.getDay() === 5) { // Friday
+            expandedEndDate.setDate(expandedEndDate.getDate() + 2); // Include weekend after
+          }
+          
+          return {
+            ...period,
+            // Keep the actual vacation dates (typically weekdays only)
+            start: actualStartDate,
+            end: actualEndDate,
+            // Add properties for the expanded period with weekends if needed
+            fullPeriodStart: expandedStartDate,
+            fullPeriodEnd: expandedEndDate
+          };
+        });
+        
         // Calculate total days off
-        const totalDaysOff = optimalPeriods.reduce((sum, period) => sum + period.totalDaysOff, 0);
-        const daysUsed = optimalPeriods.reduce((sum, period) => sum + period.daysUsed, 0);
+        const totalDaysOff = processedPeriods.reduce((sum, period) => sum + period.totalDaysOff, 0);
+        const daysUsed = processedPeriods.reduce((sum, period) => sum + period.daysUsed, 0);
         
         const result = {
           totalDaysOff: totalDaysOff,
           daysUsed: daysUsed,
-          suggestedPeriods: optimalPeriods
+          suggestedPeriods: processedPeriods
         };
         
         console.log('------- VACATION OPTIMIZER OUTPUT -------');
         console.log(`Total Days Off: ${totalDaysOff}`);
         console.log(`Days Used: ${daysUsed}`);
-        console.log(`Number of suggested periods: ${optimalPeriods.length}`);
-        console.log('Suggested Periods:', JSON.stringify(optimalPeriods, null, 2));
+        console.log(`Number of suggested periods: ${processedPeriods.length}`);
+        console.log('Suggested Periods:', JSON.stringify(processedPeriods, null, 2));
         
         return result;
       })
     );
   }
 
-  private findPotentialVacationPeriods(holidays: Date[], year: number, maxDaysToUse: number, canton: string = 'ZH'): VacationPeriod[] {
+  private findPotentialVacationPeriods(holidays: Date[], year: number, maxDaysToUse: number, canton: string = 'ZH', removedDates: Date[] = []): VacationPeriod[] {
     console.log('------- FINDING POTENTIAL VACATION PERIODS -------');
     console.log(`Year: ${year}, Max Days: ${maxDaysToUse}, Canton: ${canton}`);
     console.log(`Number of holidays: ${holidays.length}`);
     
     const periods: VacationPeriod[] = [];
     
-    // First add full work weeks (Monday-Friday)
-    const fullWeeks = this.findCompleteWorkWeeks(year, maxDaysToUse, canton);
+    // First prioritize full work weeks (Monday-Friday)
+    // Increase priority by finding these first
+    const fullWeeks = this.findFullWeekPeriods(year, maxDaysToUse, canton, holidays);
     console.log(`Generated ${fullWeeks.length} full work week periods`);
     periods.push(...fullWeeks);
     
-    // Get all public holidays and weekends in the year
-    const daysOff: Date[] = [...holidays];
+    // Then find bridge periods around holidays
+    const bridgePeriods = this.findBridgePeriods(holidays, year, maxDaysToUse, canton);
+    console.log(`Generated ${bridgePeriods.length} bridge periods around holidays`);
+    periods.push(...bridgePeriods);
     
-    // Only consider periods in the selected year
-    const startDate = new Date(year, 0, 1);  // January 1st of selected year
-    const endDate = new Date(year, 11, 31);  // December 31st of selected year
+    // Add extended weekend periods (connecting multiple weekends)
+    const extendedWeekends = this.findExtendedWeekendPeriods(year, maxDaysToUse, canton, holidays);
+    console.log(`Generated ${extendedWeekends.length} extended weekend periods`);
+    periods.push(...extendedWeekends);
     
-    // Generate potential periods around each holiday with higher priority
-    for (const holiday of holidays) {
-      // Skip holidays not in the selected year
-      if (holiday.getFullYear() !== year) continue;
+    // Add weekend-to-weekend bridge periods (strategic periods connecting two weekends)
+    const weekendBridges = this.findWeekendBridgePeriods(year, maxDaysToUse, canton);
+    console.log(`Generated ${weekendBridges.length} weekend-to-weekend bridge periods`);
+    periods.push(...weekendBridges);
+    
+    console.log(`Total number of potential periods: ${periods.length}`);
+    
+    // Ensure all periods are within the specified year
+    const withinYearPeriods = periods.filter(period => {
+      const startDate = period.start instanceof Date ? period.start : new Date(period.start);
+      const endDate = period.end instanceof Date ? period.end : new Date(period.end);
+      return startDate.getFullYear() === year && endDate.getFullYear() === year;
+    });
+    
+    console.log(`After filtering by year ${year}: ${withinYearPeriods.length} periods`);
+    
+    // Remove duplicates
+    const uniquePeriods = this.removeDuplicatePeriods(withinYearPeriods);
+    console.log(`After removing duplicates: ${uniquePeriods.length} periods`);
+    
+    // After generating all periods, filter out any that include removed dates
+    const filteredPeriods = uniquePeriods.filter(period => {
+      // Check if this period contains any removed date
+      const start = period.start instanceof Date ? period.start : new Date(period.start);
+      const end = period.end instanceof Date ? period.end : new Date(period.end);
       
-      // Skip holidays that fall on weekends
-      if (this.isWeekend(holiday)) continue;
-      
-      // Look at periods starting up to 7 days before the holiday
-      for (let startOffset = -7; startOffset <= 0; startOffset++) {
-        // Look at periods ending up to 7 days after the holiday
-        for (let endOffset = 0; endOffset <= 7; endOffset++) {
-          // Skip trivial cases
-          if (startOffset === 0 && endOffset === 0) continue;
-          
-          const periodStart = new Date(holiday);
-          periodStart.setDate(holiday.getDate() + startOffset);
-          
-          const periodEnd = new Date(holiday);
-          periodEnd.setDate(holiday.getDate() + endOffset);
-          
-          // Skip periods that are too long for available days
-          const businessDays = this.countBusinessDays(periodStart, periodEnd, canton);
-          if (businessDays > maxDaysToUse) continue;
-          
-          // Calculate how many days would be taken off
-          const vacationDaysUsed = this.countVacationDays(periodStart, periodEnd, holidays);
-          if (vacationDaysUsed === 0 || vacationDaysUsed > maxDaysToUse) continue;
-          
-          // Calculate total consecutive days off
-          const totalDaysOff = this.daysBetween(periodStart, periodEnd) + 1;
-          
-          // Calculate efficiency (days off per vacation day)
-          const efficiency = totalDaysOff / vacationDaysUsed;
-          
-          // Check if it's a full Monday-Friday work week
-          const isFullWeek = this.isCompleteWorkWeek(periodStart, periodEnd);
-          
-          // Calculate score with bonuses for holiday periods and complete weeks
-          const holidayBonus = 0.5; // Bonus for including holidays
-          const fullWeekBonus = isFullWeek ? 0.7 : 0; // Extra bonus for complete weeks
-          const score = efficiency + holidayBonus + fullWeekBonus;
-          
-          periods.push({
-            start: new Date(periodStart),
-            end: new Date(periodEnd),
-            daysUsed: vacationDaysUsed,
-            totalDaysOff,
-            efficiency,
-            score
-          });
+      // Check each day in the period
+      const currentDate = new Date(start);
+      while (currentDate <= end) {
+        // Is this date in the removed dates?
+        const matchesRemovedDate = removedDates.some(removedDate => 
+          this.isSameDay(currentDate, removedDate)
+        );
+        
+        if (matchesRemovedDate) {
+          return false; // Filter out this period
         }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-    }
+      
+      return true; // Keep this period
+    });
     
-    // Also consider bridge days (connecting weekends)
-    // For each week, try to bridge between two weekends
-    // Use the existing weekend surrounding code, but prioritize connecting weekends
+    console.log(`After removing periods with excluded dates: ${filteredPeriods.length} periods`);
     
+    return filteredPeriods;
+  }
+
+  // Modify the full week periods finder to give higher priority to weeks with holidays
+  private findFullWeekPeriods(year: number, maxDaysToUse: number, canton: string, holidays: Date[]): VacationPeriod[] {
+    const periods: VacationPeriod[] = [];
     const firstDay = new Date(year, 0, 1);
     const lastDay = new Date(year, 11, 31);
     
-    // Look for opportunities to connect weekends
-    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 7)) {
-      // Find Monday of the current week
+    // Iterate through each Monday of the year
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      // Skip if not Monday
+      if (d.getDay() !== 1) continue;
+      
       const monday = new Date(d);
-      monday.setDate(d.getDate() + (1 + 7 - d.getDay()) % 7);
-      
-      // Find Friday of the current week
       const friday = new Date(d);
-      friday.setDate(d.getDate() + (5 + 7 - d.getDay()) % 7);
+      friday.setDate(friday.getDate() + 4); // Friday is 4 days after Monday
       
-      // For a full work week (Monday to Friday)
-      const periodStart = new Date(monday);
-      const periodEnd = new Date(friday);
+      // Calculate vacation days needed (business days minus holidays)
+      const holidaysInWeek = this.countHolidaysInPeriod(monday, friday, canton);
+      const vacationDaysNeeded = 5 - holidaysInWeek; // 5 business days in a week
       
-      // Calculate metrics
-      const businessDays = this.countBusinessDays(periodStart, periodEnd, canton);
-      if (businessDays > maxDaysToUse) continue;
+      // Skip if we need too many vacation days or none at all
+      if (vacationDaysNeeded <= 0 || vacationDaysNeeded > maxDaysToUse) continue;
       
-      const vacationDaysUsed = this.countVacationDays(periodStart, periodEnd, holidays);
-      if (vacationDaysUsed === 0 || vacationDaysUsed > maxDaysToUse) continue;
+      // Calculate total consecutive days off (including weekends before and after)
+      const weekendBefore = new Date(monday);
+      weekendBefore.setDate(weekendBefore.getDate() - 2); // Saturday before
       
-      // 9 days total (5 workdays + 2 weekend days before + 2 weekend days after)
-      const totalDaysOff = 9;
+      const weekendAfter = new Date(friday);
+      weekendAfter.setDate(weekendAfter.getDate() + 2); // Sunday after
       
-      // Calculate efficiency (days off per vacation day)
-      const efficiency = totalDaysOff / vacationDaysUsed;
+      const totalDaysOff = this.daysBetween(weekendBefore, weekendAfter) + 1;
+      const efficiency = totalDaysOff / vacationDaysNeeded;
       
-      // Apply a bonus for the full week
-      const score = efficiency * 1.2; // 20% bonus
+      // Calculate score with bonuses
+      const monthBonus = this.calculateMonthDiversityBonus(monday.getMonth());
+      // INCREASE the holiday bonus significantly to prioritize weeks with holidays
+      const holidayBonus = holidaysInWeek > 0 ? holidaysInWeek * 3.0 : 0;
+      const score = efficiency + monthBonus + holidayBonus + 2.0; // +2.0 bonus for complete weeks (increased)
       
       periods.push({
-        start: new Date(periodStart),
-        end: new Date(periodEnd),
-        daysUsed: vacationDaysUsed,
+        // IMPORTANT: Only include the actual vacation period (Monday-Friday)
+        // not the surrounding weekends in the date range
+        start: new Date(monday),
+        end: new Date(friday),
+        daysUsed: vacationDaysNeeded,
         totalDaysOff,
         efficiency,
         score
       });
     }
     
-    console.log(`Total number of potential periods: ${periods.length}`);
     return periods;
   }
 
+  // New helper method to find bridge periods around holidays
+  private findBridgePeriods(holidays: Date[], year: number, maxDaysToUse: number, canton: string): VacationPeriod[] {
+    const periods: VacationPeriod[] = [];
+    
+    // For each holiday, look for bridge opportunities
+    for (const holiday of holidays) {
+      // Skip holidays that fall on weekends
+      if (this.isWeekend(holiday)) continue;
+      
+      // Skip holidays not in the selected year
+      if (holiday.getFullYear() !== year) continue;
+      
+      const day = holiday.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+      
+      // Different bridge strategies based on day of the week
+      
+      // Case 1: Holiday on Tuesday - bridge Monday
+      if (day === 2) {
+        const start = new Date(holiday);
+        start.setDate(start.getDate() - 3); // Start from Saturday
+        const end = new Date(holiday);
+        
+        // Check if Monday is already a holiday
+        const monday = new Date(holiday);
+        monday.setDate(monday.getDate() - 1);
+        
+        if (!this.isPublicHoliday(monday, canton)) {
+          const vacationDaysNeeded = 1; // Just Monday
+          
+          if (vacationDaysNeeded <= maxDaysToUse) {
+            const totalDaysOff = 4; // Saturday through Tuesday
+            const efficiency = totalDaysOff / vacationDaysNeeded;
+            const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.5;
+            
+            periods.push({
+              start: new Date(start),
+              end: new Date(end),
+              daysUsed: vacationDaysNeeded,
+              totalDaysOff,
+              efficiency,
+              score
+            });
+          }
+        }
+      }
+      
+      // Case 2: Holiday on Thursday - bridge Friday
+      if (day === 4) {
+        const start = new Date(holiday);
+        const end = new Date(holiday);
+        end.setDate(end.getDate() + 3); // End on Sunday
+        
+        // Check if Friday is already a holiday
+        const friday = new Date(holiday);
+        friday.setDate(friday.getDate() + 1);
+        
+        if (!this.isPublicHoliday(friday, canton)) {
+          const vacationDaysNeeded = 1; // Just Friday
+          
+          if (vacationDaysNeeded <= maxDaysToUse) {
+            const totalDaysOff = 4; // Thursday through Sunday
+            const efficiency = totalDaysOff / vacationDaysNeeded;
+            const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.5;
+            
+            periods.push({
+              start: new Date(start),
+              end: new Date(end),
+              daysUsed: vacationDaysNeeded,
+              totalDaysOff,
+              efficiency,
+              score
+            });
+          }
+        }
+      }
+      
+      // Case 3: Holiday on Wednesday - bridge to make a full week
+      if (day === 3) {
+        // Option A: Bridge Monday and Tuesday
+        const startA = new Date(holiday);
+        startA.setDate(startA.getDate() - 4); // Start from Saturday
+        const endA = new Date(holiday);
+        
+        // Check how many days we need to bridge
+        const monday = new Date(holiday);
+        monday.setDate(monday.getDate() - 2);
+        const tuesday = new Date(holiday);
+        tuesday.setDate(tuesday.getDate() - 1);
+        
+        let vacationDaysNeededA = 0;
+        if (!this.isPublicHoliday(monday, canton)) vacationDaysNeededA++;
+        if (!this.isPublicHoliday(tuesday, canton)) vacationDaysNeededA++;
+        
+        if (vacationDaysNeededA > 0 && vacationDaysNeededA <= maxDaysToUse) {
+          const totalDaysOff = 5; // Saturday through Wednesday
+          const efficiency = totalDaysOff / vacationDaysNeededA;
+          const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.2;
+          
+          periods.push({
+            start: new Date(startA),
+            end: new Date(endA),
+            daysUsed: vacationDaysNeededA,
+            totalDaysOff,
+            efficiency,
+            score
+          });
+        }
+        
+        // Option B: Bridge Thursday and Friday
+        const startB = new Date(holiday);
+        const endB = new Date(holiday);
+        endB.setDate(endB.getDate() + 4); // End on Sunday
+        
+        const thursday = new Date(holiday);
+        thursday.setDate(thursday.getDate() + 1);
+        const friday = new Date(holiday);
+        friday.setDate(friday.getDate() + 2);
+        
+        let vacationDaysNeededB = 0;
+        if (!this.isPublicHoliday(thursday, canton)) vacationDaysNeededB++;
+        if (!this.isPublicHoliday(friday, canton)) vacationDaysNeededB++;
+        
+        if (vacationDaysNeededB > 0 && vacationDaysNeededB <= maxDaysToUse) {
+          const totalDaysOff = 5; // Wednesday through Sunday
+          const efficiency = totalDaysOff / vacationDaysNeededB;
+          const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.2;
+          
+          periods.push({
+            start: new Date(startB),
+            end: new Date(endB),
+            daysUsed: vacationDaysNeededB,
+            totalDaysOff,
+            efficiency,
+            score
+          });
+        }
+        
+        // Option C: Bridge the whole week if we have enough days
+        const startC = new Date(holiday);
+        startC.setDate(startC.getDate() - 4); // Start from Saturday before
+        const endC = new Date(holiday);
+        endC.setDate(endC.getDate() + 4); // End on Sunday after
+        
+        // Count all vacation days needed for the full week
+        let vacationDaysNeededC = 0;
+        for (let i = -2; i <= 2; i++) {
+          if (i === 0) continue; // Skip the holiday itself
+          
+          const checkDay = new Date(holiday);
+          checkDay.setDate(checkDay.getDate() + i);
+          
+          if (!this.isWeekend(checkDay) && !this.isPublicHoliday(checkDay, canton)) {
+            vacationDaysNeededC++;
+          }
+        }
+        
+        if (vacationDaysNeededC > 0 && vacationDaysNeededC <= maxDaysToUse) {
+          const totalDaysOff = 9; // Full 9-day period including weekends
+          const efficiency = totalDaysOff / vacationDaysNeededC;
+          const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 2.0;
+          
+          periods.push({
+            start: new Date(startC),
+            end: new Date(endC),
+            daysUsed: vacationDaysNeededC,
+            totalDaysOff,
+            efficiency,
+            score
+          });
+        }
+      }
+      
+      // Case 4: Holiday on Monday - create a 4-day weekend
+      if (day === 1) {
+        const start = new Date(holiday);
+        start.setDate(start.getDate() - 2); // Start from Saturday
+        const end = new Date(holiday);
+        
+        // No vacation days needed, already a 3-day weekend
+        // But we can extend by taking Tuesday-Friday
+        for (let additionalDays = 1; additionalDays <= 4; additionalDays++) {
+          if (additionalDays > maxDaysToUse) break;
+          
+          const extendedEnd = new Date(holiday);
+          extendedEnd.setDate(extendedEnd.getDate() + additionalDays);
+          
+          // Count how many vacation days we actually need (some might be holidays)
+          let actualVacationDays = 0;
+          for (let i = 1; i <= additionalDays; i++) {
+            const checkDay = new Date(holiday);
+            checkDay.setDate(checkDay.getDate() + i);
+            
+            if (!this.isWeekend(checkDay) && !this.isPublicHoliday(checkDay, canton)) {
+              actualVacationDays++;
+            }
+          }
+          
+          if (actualVacationDays > 0) {
+            const totalDaysOff = 3 + additionalDays; // 3-day weekend + additional days
+            const efficiency = totalDaysOff / actualVacationDays;
+            const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.0;
+            
+            periods.push({
+              start: new Date(start),
+              end: new Date(extendedEnd),
+              daysUsed: actualVacationDays,
+              totalDaysOff,
+              efficiency,
+              score
+            });
+          }
+        }
+      }
+      
+      // Case 5: Holiday on Friday - create a 4-day weekend
+      if (day === 5) {
+        const start = new Date(holiday);
+        const end = new Date(holiday);
+        end.setDate(end.getDate() + 2); // End on Sunday
+        
+        // No vacation days needed, already a 3-day weekend
+        // But we can extend by taking Monday-Thursday before
+        for (let additionalDays = 1; additionalDays <= 4; additionalDays++) {
+          if (additionalDays > maxDaysToUse) break;
+          
+          const extendedStart = new Date(holiday);
+          extendedStart.setDate(extendedStart.getDate() - additionalDays);
+          
+          // Count how many vacation days we actually need (some might be holidays)
+          let actualVacationDays = 0;
+          for (let i = 1; i <= additionalDays; i++) {
+            const checkDay = new Date(holiday);
+            checkDay.setDate(checkDay.getDate() - i);
+            
+            if (!this.isWeekend(checkDay) && !this.isPublicHoliday(checkDay, canton)) {
+              actualVacationDays++;
+            }
+          }
+          
+          if (actualVacationDays > 0) {
+            const totalDaysOff = 3 + additionalDays; // 3-day weekend + additional days
+            const efficiency = totalDaysOff / actualVacationDays;
+            const score = efficiency + this.calculateMonthDiversityBonus(holiday.getMonth()) + 1.0;
+            
+            periods.push({
+              start: new Date(extendedStart),
+              end: new Date(end),
+              daysUsed: actualVacationDays,
+              totalDaysOff,
+              efficiency,
+              score
+            });
+          }
+        }
+      }
+    }
+    
+    return periods;
+  }
+
+  // New helper method to find extended weekend periods
+  private findExtendedWeekendPeriods(year: number, maxDaysToUse: number, canton: string, holidays: Date[]): VacationPeriod[] {
+    const periods: VacationPeriod[] = [];
+    
+    // Start searching from the beginning of the year
+    const firstDay = new Date(year, 0, 1);
+    const lastDay = new Date(year, 11, 31);
+    
+    // Focus on generating better Monday-Friday periods
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      // Look specifically for Mondays to create perfect Monday-Friday spans
+      if (d.getDay() === 1) { // Monday
+        const monday = new Date(d);
+        const friday = new Date(d);
+        friday.setDate(friday.getDate() + 4); // Friday
+        
+        // Skip if this period extends beyond year boundary
+        if (friday.getFullYear() > year) continue;
+        
+        // Count vacation days needed (account for holidays)
+        let vacationDaysNeeded = 0;
+        for (let i = 0; i < 5; i++) { // Monday through Friday
+          const checkDay = new Date(monday);
+          checkDay.setDate(checkDay.getDate() + i);
+          
+          if (!this.isPublicHoliday(checkDay, canton)) {
+            vacationDaysNeeded++;
+          }
+        }
+        
+        // Skip if we need too many days or no days at all
+        if (vacationDaysNeeded <= 0 || vacationDaysNeeded > maxDaysToUse) continue;
+        
+        // Calculate total days off (including both weekends)
+        const saturdayBefore = new Date(monday);
+        saturdayBefore.setDate(saturdayBefore.getDate() - 2);
+        
+        const sundayAfter = new Date(friday);
+        sundayAfter.setDate(sundayAfter.getDate() + 2);
+        
+        const totalDaysOff = this.daysBetween(saturdayBefore, sundayAfter) + 1; // 9 days for a full period
+        const efficiency = totalDaysOff / vacationDaysNeeded;
+        
+        // Higher score for periods that include holidays
+        const holidaysInPeriod = this.countHolidaysInPeriod(monday, friday, canton);
+        const monthBonus = this.calculateMonthDiversityBonus(monday.getMonth());
+        
+        // Give a massive bonus to full-week periods (Monday-Friday) with high efficiency
+        const weekBonus = 3.0; // Significant bonus for connecting two weekends with a full week
+        const holidayBonus = holidaysInPeriod * 2.5;
+        const score = efficiency + monthBonus + weekBonus + holidayBonus;
+        
+        periods.push({
+          start: new Date(monday), // Monday
+          end: new Date(friday),   // Friday
+          daysUsed: vacationDaysNeeded,
+          totalDaysOff,
+          efficiency,
+          score
+        });
+      }
+    }
+    
+    // Add some shorter but still valuable periods (3-4 days)
+    // ... existing code for other types of periods ...
+    
+    return periods;
+  }
+
+  // Add a new method to find strategic periods connecting two weekends
+  private findWeekendBridgePeriods(year: number, maxDaysToUse: number, canton: string): VacationPeriod[] {
+    const periods: VacationPeriod[] = [];
+    const firstDay = new Date(year, 0, 1);
+    const lastDay = new Date(year, 11, 31);
+    
+    // We want to find Monday-to-Friday spans (5 working days)
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      // Skip if not Monday
+      if (d.getDay() !== 1) continue;
+      
+      // This is a Monday - check for a full week to the next Friday
+      const monday = new Date(d);
+      const friday = new Date(d);
+      friday.setDate(friday.getDate() + 4); // Friday is 4 days after Monday
+      
+      // Skip if this span goes beyond the year
+      if (friday.getFullYear() > year) continue;
+      
+      // Calculate vacation days needed (account for holidays)
+      const holidaysInPeriod = this.countHolidaysInPeriod(monday, friday, canton);
+      const vacationDaysNeeded = 5 - holidaysInPeriod;
+      
+      // Skip if we need too many vacation days or none at all
+      if (vacationDaysNeeded <= 0 || vacationDaysNeeded > maxDaysToUse) continue;
+      
+      // Calculate total consecutive days off (including weekends before and after)
+      const saturdayBefore = new Date(monday);
+      saturdayBefore.setDate(saturdayBefore.getDate() - 2); // Saturday before
+      
+      const sundayAfter = new Date(friday);
+      sundayAfter.setDate(sundayAfter.getDate() + 2); // Sunday after
+      
+      // Only include if both weekends are within the year
+      if (saturdayBefore.getFullYear() < year || sundayAfter.getFullYear() > year) continue;
+      
+      const totalDaysOff = this.daysBetween(saturdayBefore, sundayAfter) + 1;
+      const efficiency = totalDaysOff / vacationDaysNeeded;
+      
+      // Calculate score with bonuses
+      const monthBonus = this.calculateMonthDiversityBonus(monday.getMonth());
+      const holidayBonus = holidaysInPeriod > 0 ? holidaysInPeriod * 2.0 : 0;
+      const bridgeBonus = 2.0; // Strong bonus for connecting two weekends
+      const score = efficiency + monthBonus + holidayBonus + bridgeBonus;
+      
+      periods.push({
+        start: new Date(saturdayBefore), // Include weekend before
+        end: new Date(sundayAfter),     // Include weekend after
+        daysUsed: vacationDaysNeeded,
+        totalDaysOff,
+        efficiency,
+        score
+      });
+    }
+    
+    return periods;
+  }
+
+  // Remove duplicate periods - improved version that handles both use cases
+  private removeDuplicatePeriods(periods: any[]): any[] {
+    const uniquePeriods: any[] = [];
+    const seen = new Set<string>();
+    
+    periods.forEach(period => {
+      // Convert dates to ISO strings for comparison
+      const startStr = period.start instanceof Date 
+        ? period.start.toISOString().split('T')[0] 
+        : period.start;
+      const endStr = period.end instanceof Date 
+        ? period.end.toISOString().split('T')[0] 
+        : period.end;
+      
+      const key = `${startStr}-${endStr}`;
+      
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniquePeriods.push(period);
+      } else {
+        // If we already have this period, keep the one with the higher score
+        const existingIndex = uniquePeriods.findIndex(p => {
+          const pStartStr = p.start instanceof Date 
+            ? p.start.toISOString().split('T')[0] 
+            : p.start;
+          const pEndStr = p.end instanceof Date 
+            ? p.end.toISOString().split('T')[0] 
+            : p.end;
+          
+          return `${pStartStr}-${pEndStr}` === key;
+        });
+        
+        if (existingIndex >= 0 && (period.score || period.efficiency) > (uniquePeriods[existingIndex].score || uniquePeriods[existingIndex].efficiency)) {
+          uniquePeriods[existingIndex] = period;
+        }
+      }
+    });
+    
+    return uniquePeriods;
+  }
+
+  // Modify the selectOptimalPeriods function to prioritize full weeks with holidays
   private selectOptimalPeriods(candidatePeriods: VacationPeriod[], vacationDaysAvailable: number): VacationPeriod[] {
     console.log('------- SELECTING OPTIMAL PERIODS -------');
     console.log(`Candidate periods: ${candidatePeriods.length}, Days available: ${vacationDaysAvailable}`);
     
     if (candidatePeriods.length === 0) return [];
     
-    // First, categorize periods by whether they're "bridge" periods
-    const bridgePeriods = candidatePeriods.filter(period => {
-      // Check if this period contains a holiday
+    // Categorize periods by type for better prioritization
+    // First, identify full weeks with holidays (highest priority)
+    const fullWeeksWithHolidays = candidatePeriods.filter(period => {
       if (period.start instanceof Date && period.end instanceof Date) {
         const start = period.start;
         const end = period.end;
-        const canton = 'ZH'; // Default to ZH, but ideally this would be passed in
-        return this.countHolidaysInPeriod(start, end, canton) > 0;
+        const daysBetween = this.daysBetween(start, end);
+        const isCompleteWorkWeek = this.isCompleteWorkWeek(start, end);
+        const holidaysCount = this.countHolidaysInPeriod(start, end, 'ZH');
+        return isCompleteWorkWeek && holidaysCount > 0;
       }
       return false;
     });
     
-    const nonBridgePeriods = candidatePeriods.filter(period => {
+    // Regular full work weeks without holidays
+    const fullWeekPeriods = candidatePeriods.filter(period => 
+      period.start instanceof Date && 
+      period.end instanceof Date && 
+      this.isCompleteWorkWeek(period.start, period.end) &&
+      !fullWeeksWithHolidays.includes(period)
+    );
+    
+    // Then find bridge periods around holidays
+    const bridgePeriods = candidatePeriods.filter(period => {
+      // Check if this period contains a holiday but is not a full week
       if (period.start instanceof Date && period.end instanceof Date) {
         const start = period.start;
         const end = period.end;
         const canton = 'ZH'; // Default to ZH, but ideally this would be passed in
-        return this.countHolidaysInPeriod(start, end, canton) === 0;
+        return this.countHolidaysInPeriod(start, end, canton) > 0 && 
+               !this.isCompleteWorkWeek(start, end);
       }
-      return true;
+      return false;
     });
     
+    const weekendBridgePeriods = candidatePeriods.filter(period => {
+      if (period.start instanceof Date && period.end instanceof Date) {
+        const daysBetween = this.daysBetween(period.start, period.end);
+        // Weekend bridges are typically 9 days (2 weekends + 5 weekdays)
+        return daysBetween >= 8 && daysBetween <= 10 && 
+               this.countHolidaysInPeriod(period.start, period.end, 'ZH') === 0;
+      }
+      return false;
+    });
+    
+    const extendedWeekendPeriods = candidatePeriods.filter(period => {
+      if (period.start instanceof Date && period.end instanceof Date) {
+        const start = period.start;
+        const end = period.end;
+        const canton = 'ZH'; // Default to ZH
+        const daysBetween = this.daysBetween(start, end);
+        return this.countHolidaysInPeriod(start, end, canton) === 0 && 
+               !this.isCompleteWorkWeek(start, end) &&
+               daysBetween < 8 && daysBetween > 3; // Short periods that aren't full weeks
+      }
+      return false;
+    });
+    
+    const otherPeriods = candidatePeriods.filter(period => 
+      !fullWeeksWithHolidays.includes(period) &&
+      !fullWeekPeriods.includes(period) && 
+      !bridgePeriods.includes(period) && 
+      !weekendBridgePeriods.includes(period) &&
+      !extendedWeekendPeriods.includes(period)
+    );
+    
     // Sort each category by score
-    bridgePeriods.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
-    nonBridgePeriods.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
+    const sortByScore = (a: VacationPeriod, b: VacationPeriod) => 
+      (b.score || b.efficiency) - (a.score || a.efficiency);
     
-    // Combine, prioritizing bridge periods
-    const sortedPeriods = [...bridgePeriods, ...nonBridgePeriods];
+    fullWeeksWithHolidays.sort(sortByScore);
+    fullWeekPeriods.sort(sortByScore);
+    bridgePeriods.sort(sortByScore);
+    weekendBridgePeriods.sort(sortByScore);
+    extendedWeekendPeriods.sort(sortByScore);
+    otherPeriods.sort(sortByScore);
     
-    // Add a flag to track which start/end date combinations we've already selected
+    // Combine, prioritizing by category
+    const sortedPeriods = [
+      ...fullWeeksWithHolidays,    // NEW: First priority: full weeks with holidays
+      ...bridgePeriods,            // Second priority: periods with holidays
+      ...fullWeekPeriods,          // Third priority: full weeks without holidays
+      ...weekendBridgePeriods,     // Fourth priority: weekend bridges
+      ...extendedWeekendPeriods,   // Fifth priority: extended weekends
+      ...otherPeriods              // Last priority: other periods
+    ];
+    
+    // Track selected periods and maintain month distribution
     const selectedRanges = new Set<string>();
     const selectedPeriods: VacationPeriod[] = [];
     let daysRemaining = vacationDaysAvailable;
     
     // Track months to ensure distribution
-    const monthsUsed = new Set<number>();
+    const monthsUsed = new Map<number, number>(); // Map to count periods per month
     
     // Process periods in order of priority
     for (const period of sortedPeriods) {
@@ -362,102 +896,140 @@ export class HolidayService {
       // Skip if there's an overlap
       if (overlapsWithSelected) continue;
       
-      // Check if we can extend this period to a full week if it's not already
-      // and we have enough days remaining
-      let periodToAdd = period;
-      
-      if (period.start instanceof Date && period.end instanceof Date) {
-        const start = period.start;
-        const end = period.end;
-        
-        // Check if this is not already a full Monday-Friday week
-        if (!this.isCompleteWorkWeek(start, end)) {
-          // Try to extend to a full week if possible
-          const monday = new Date(start);
-          while (monday.getDay() !== 1) { // Move back to Monday
-            monday.setDate(monday.getDate() - 1);
-          }
-          
-          const friday = new Date(end);
-          while (friday.getDay() !== 5) { // Move forward to Friday
-            friday.setDate(friday.getDate() + 1);
-          }
-          
-          // Calculate how many additional vacation days would be needed
-          const canton = 'ZH'; // Default to ZH
-          const extendedVacationDays = this.countVacationDays(monday, friday, 
-            this.holidays.filter(h => h.canton === 'all' || h.canton.split(',').includes(canton))
-              .map(h => {
-                const [m, d] = h.date.split('-').map(Number);
-                return new Date(start.getFullYear(), m - 1, d);
-              })
-          );
-          
-          // If we have enough days remaining and it's a reasonable extension
-          if (extendedVacationDays <= daysRemaining && 
-              extendedVacationDays - period.daysUsed <= 3) { // Don't add more than 3 extra days
-            
-            // Create the extended period
-            const totalDaysOff = 9; // Full week + weekends
-            const efficiency = totalDaysOff / extendedVacationDays;
-            
-            periodToAdd = {
-              start: monday,
-              end: friday,
-              daysUsed: extendedVacationDays,
-              totalDaysOff,
-              efficiency,
-              score: period.score // Keep original score for sorting purposes
-            };
-          }
-        }
-      }
-      
-      // Skip if adding this period would exceed the available days
-      if (periodToAdd.daysUsed > daysRemaining) continue;
-      
       // Get the month of this period
-      const periodMonth = periodToAdd.start instanceof Date 
-        ? periodToAdd.start.getMonth() 
-        : new Date(periodToAdd.start).getMonth();
+      const periodMonth = period.start instanceof Date 
+        ? period.start.getMonth() 
+        : new Date(period.start).getMonth();
       
-      // If we already have 2 periods in this month and there are other months available,
-      // skip this period to encourage distribution (unless it's an exceptional deal)
-      const monthCount = Array.from(selectedPeriods).filter(p => {
-        const month = p.start instanceof Date 
-          ? p.start.getMonth() 
-          : new Date(p.start).getMonth();
-        return month === periodMonth;
-      }).length;
+      // Count how many periods we already have in this month
+      const monthCount = monthsUsed.get(periodMonth) || 0;
       
-      // Skip if we already have 2 periods in this month, unless it's an exceptional deal
-      // (efficiency > 5 or contains multiple holidays)
-      const isExceptionalDeal = periodToAdd.efficiency > 5 || 
-        (periodToAdd.start instanceof Date && periodToAdd.end instanceof Date && 
-         this.countHolidaysInPeriod(periodToAdd.start, periodToAdd.end, 'ZH') > 1);
-         
-      if (monthCount >= 2 && !isExceptionalDeal && monthsUsed.size < 6) {
+      // Determine if this is an exceptional deal
+      const isExceptionalDeal = 
+        (period.efficiency > 4) || // High efficiency
+        (period.start instanceof Date && 
+         period.end instanceof Date && 
+         this.countHolidaysInPeriod(period.start, period.end, 'ZH') > 1) || // Multiple holidays
+        this.isCompleteWorkWeek(
+          period.start instanceof Date ? period.start : new Date(period.start), 
+          period.end instanceof Date ? period.end : new Date(period.end)
+        ); // Full week
+      
+      // Skip if we already have too many periods in this month and it's not exceptional
+      // The more months we've used, the stricter we get about adding more to the same month
+      const maximumPeriodsPerMonth = monthsUsed.size <= 3 ? 2 : 1;
+      
+      if (monthCount >= maximumPeriodsPerMonth && !isExceptionalDeal && monthsUsed.size < 6) {
         continue;
       }
       
+      // Skip if adding this period would exceed the available days
+      if (period.daysUsed > daysRemaining) continue;
+      
       // Add this period
-      selectedPeriods.push(periodToAdd);
+      selectedPeriods.push(period);
       selectedRanges.add(rangeKey);
-      monthsUsed.add(periodMonth);
-      daysRemaining -= periodToAdd.daysUsed;
+      monthsUsed.set(periodMonth, monthCount + 1);
+      daysRemaining -= period.daysUsed;
       
       // If we've used all available days, break
       if (daysRemaining <= 0) break;
     }
     
-    // Add a log at the end to see what was selected
-    console.log(`Selected ${selectedPeriods.length} optimal periods`);
-    if (selectedPeriods.length > 0) {
-      console.log('Top period scores:', selectedPeriods.map(p => p.score || p.efficiency));
-      console.log('Months used:', Array.from(monthsUsed).map(m => m + 1)); // +1 because months are 0-indexed
+    // If we still have days and haven't achieved good distribution, try to add more periods
+    if (daysRemaining > 0 && monthsUsed.size < 6) {
+      // Find months that we haven't used yet
+      const unusedMonths = Array.from({length: 12}, (_, i) => i)
+                               .filter(month => !monthsUsed.has(month));
+      
+      // Look for periods in unused months
+      for (const month of unusedMonths) {
+        if (daysRemaining <= 0) break;
+        
+        // Find periods in this month that don't overlap with selected periods
+        const periodsInMonth = sortedPeriods.filter(period => {
+          const periodMonth = period.start instanceof Date 
+            ? period.start.getMonth() 
+            : new Date(period.start).getMonth();
+          
+          return periodMonth === month && period.daysUsed <= daysRemaining;
+        });
+        
+        // Try to add a non-overlapping period
+        for (const period of periodsInMonth) {
+          // Skip if we've already added this exact date range
+          const startDate = period.start instanceof Date 
+            ? period.start.toISOString().split('T')[0] 
+            : period.start;
+          const endDate = period.end instanceof Date 
+            ? period.end.toISOString().split('T')[0] 
+            : period.end;
+          const rangeKey = `${startDate}-${endDate}`;
+          
+          if (selectedRanges.has(rangeKey)) continue;
+          
+          // Check if this period overlaps with any already selected periods
+          const overlapsWithSelected = selectedPeriods.some(selectedPeriod => {
+            const selectedStart = selectedPeriod.start instanceof Date 
+              ? selectedPeriod.start 
+              : new Date(selectedPeriod.start);
+            const selectedEnd = selectedPeriod.end instanceof Date 
+              ? selectedPeriod.end 
+              : new Date(selectedPeriod.end);
+            
+            const currentStart = period.start instanceof Date 
+              ? period.start 
+              : new Date(period.start);
+            const currentEnd = period.end instanceof Date 
+              ? period.end 
+              : new Date(period.end);
+            
+            return (
+              (currentStart <= selectedEnd && currentEnd >= selectedStart) ||
+              (selectedStart <= currentEnd && selectedEnd >= currentStart)
+            );
+          });
+          
+          // Skip if there's an overlap
+          if (overlapsWithSelected) continue;
+          
+          // Add this period
+          selectedPeriods.push(period);
+          selectedRanges.add(rangeKey);
+          monthsUsed.set(month, 1);
+          daysRemaining -= period.daysUsed;
+          
+          // Move to the next month once we've added a period from this one
+          break;
+        }
+      }
     }
     
+    console.log(`Selected ${selectedPeriods.length} optimal periods across ${monthsUsed.size} months`);
+    console.log('Months used:', Array.from(monthsUsed.keys()).map(m => m + 1)); // +1 because months are 0-indexed
+    
     return selectedPeriods;
+  }
+
+  // Improved month diversity bonus calculation to better distribute vacations
+  private calculateMonthDiversityBonus(monthIndex: number): number {
+    // More balanced seasonal bonuses to spread vacations throughout the year
+    const seasonalBonuses = [
+      1.0,  // January - winter
+      1.1,  // February - winter
+      1.3,  // March - spring
+      1.5,  // April - spring (often has Easter holidays)
+      1.4,  // May - spring/early summer (often has public holidays)
+      1.2,  // June - summer
+      1.0,  // July - summer 
+      1.0,  // August - summer
+      1.3,  // September - fall
+      1.2,  // October - fall
+      1.1,  // November - winter
+      1.0,  // December - winter (common holiday month)
+    ];
+    
+    return seasonalBonuses[monthIndex];
   }
 
   // Helper method to check if a date is in an array
@@ -777,22 +1349,6 @@ export class HolidayService {
     return periods;
   }
 
-  // Remove duplicate periods
-  private removeDuplicatePeriods(periods: any[]): any[] {
-    const uniquePeriods: any[] = [];
-    const seen = new Set();
-    
-    periods.forEach(period => {
-      const key = `${period.start}-${period.end}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniquePeriods.push(period);
-      }
-    });
-    
-    return uniquePeriods;
-  }
-
   // Add the missing countDays method
   private countDays(start: Date, end: Date): number {
     // Count total calendar days (including weekends and holidays)
@@ -894,17 +1450,10 @@ export class HolidayService {
     return periods;
   }
 
-  // New method to calculate month diversity bonus
-  private calculateMonthDiversityBonus(monthIndex: number): number {
-    // Stronger bonuses to encourage better distribution
-    if (monthIndex >= 5 && monthIndex <= 8) { // June-September (summer)
-      return 0.8; // Increased from 0.4
-    } else if (monthIndex >= 11 || monthIndex <= 1) { // December-February (winter)
-      return 0.6; // Increased from 0.3
-    } else if (monthIndex >= 3 && monthIndex <= 4) { // April-May (spring)
-      return 0.5; // Increased from 0.2
-    } else {
-      return 0.3; // Increased from 0.1
-    }
+  // Helper to check if two dates represent the same day
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
   }
 } 
