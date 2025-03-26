@@ -1,0 +1,86 @@
+{
+  "APP": {
+    "TITLE": "Optimiseur de vacances",
+    "SUBTITLE": "Planification stratégique pour un maximum de temps libre",
+    "WELCOME": "Bienvenue dans l'optimiseur de vacances",
+    "DESCRIPTION": "Planifiez vos jours de vacances de manière stratégique pour maximiser votre temps libre. Ci-dessous les suggestions d'optimisation pour l'année à venir."
+  },
+  "VACATION": {
+    "TOTAL_DAYS_OFF": "Total jours de congé",
+    "VACATION_DAYS_USED": "Jours de vacances utilisés",
+    "EXTRA_DAYS_GAINED": "Jours supplémentaires gagnés",
+    "SUGGESTED_PERIODS": "Périodes de vacances suggérées",
+    "VACATION_DAYS_NEEDED": "jours de vacances nécessaires",
+    "BONUS_DAYS_GAINED": "jours bonus gagnés",
+    "FULL_WORK_WEEK": "Semaine de travail complète",
+    "STRATEGIC_TIME_OFF": "Congé stratégique",
+    "INCLUDES_HOLIDAYS": "Comprend {{count}} jour(s) férié(s): {{names}}",
+    "WEEKENDS": "Fins de semaine",
+    "HOLIDAYS": "Jours fériés",
+    "YOUR_VACATION": "Vos vacances",
+    "EXTENDED_PERIOD": "Période prolongée",
+    "AVAILABLE_DAYS": "Jours de vacances disponibles",
+    "CALCULATE_PLAN": "Calculer le plan"
+  },
+  "LANGUAGE": {
+    "SELECT": "Sélectionner la langue"
+  },
+  "YEAR": {
+    "TITLE": "Sélectionner l'année",
+    "SELECT_PLACEHOLDER": "Choisir une année"
+  },
+  "CANTON": {
+    "TITLE": "Sélectionner le canton",
+    "SELECT_PLACEHOLDER": "Choisir un canton",
+    "ZH": "Zurich",
+    "BE": "Berne",
+    "LU": "Lucerne",
+    "UR": "Uri",
+    "SZ": "Schwytz",
+    "OW": "Obwald",
+    "NW": "Nidwald",
+    "GL": "Glaris",
+    "ZG": "Zoug",
+    "FR": "Fribourg",
+    "SO": "Soleure",
+    "BS": "Bâle-Ville",
+    "BL": "Bâle-Campagne",
+    "SH": "Schaffhouse",
+    "AR": "Appenzell Rhodes-Extérieures",
+    "AI": "Appenzell Rhodes-Intérieures",
+    "SG": "Saint-Gall",
+    "GR": "Grisons",
+    "AG": "Argovie",
+    "TG": "Thurgovie",
+    "TI": "Tessin",
+    "VD": "Vaud",
+    "VS": "Valais",
+    "NE": "Neuchâtel",
+    "GE": "Genève",
+    "JU": "Jura"
+  },
+  "HOLIDAYS": {
+    "TITLE": "Calendrier des jours fériés",
+    "SUBTITLE": "Cliquez sur les dates pour ajouter/supprimer des jours fériés personnalisés",
+    "WEEKEND": "Week-end",
+    "PUBLIC_HOLIDAY": "Jour férié public",
+    "CUSTOM_HOLIDAY": "Jour férié personnalisé",
+    "REMOVED_HOLIDAY": "Jour férié supprimé",
+    "INSTRUCTIONS": "Cliquez sur un jour pour le basculer comme jour férié"
+  },
+  "DAYS": {
+    "MON": "L",
+    "TUE": "M",
+    "WED": "M",
+    "THU": "J",
+    "FRI": "V",
+    "SAT": "S",
+    "SUN": "D"
+  },
+  "DEBUG": {
+    "CURRENT_LANG": "Langue actuelle",
+    "DEFAULT_LANG": "Langue par défaut",
+    "AVAILABLE_LANGS": "Langues disponibles",
+    "FORCE_REFRESH": "Forcer l'actualisation"
+  }
+} 

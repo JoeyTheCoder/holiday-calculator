@@ -1,0 +1,86 @@
+{
+  "APP": {
+    "TITLE": "Ottimizzatore di vacanze",
+    "SUBTITLE": "Pianificazione strategica per il massimo tempo libero",
+    "WELCOME": "Benvenuto nell'ottimizzatore di vacanze",
+    "DESCRIPTION": "Pianifica i tuoi giorni di vacanza strategicamente per massimizzare il tuo tempo libero. Di seguito sono riportati i suggerimenti di ottimizzazione per il prossimo anno."
+  },
+  "VACATION": {
+    "TOTAL_DAYS_OFF": "Totale giorni liberi",
+    "VACATION_DAYS_USED": "Giorni di vacanza utilizzati",
+    "EXTRA_DAYS_GAINED": "Giorni extra guadagnati",
+    "SUGGESTED_PERIODS": "Periodi di vacanza suggeriti",
+    "VACATION_DAYS_NEEDED": "giorni di vacanza necessari",
+    "BONUS_DAYS_GAINED": "giorni bonus guadagnati",
+    "FULL_WORK_WEEK": "Settimana lavorativa completa",
+    "STRATEGIC_TIME_OFF": "Tempo libero strategico",
+    "INCLUDES_HOLIDAYS": "Include {{count}} giorno/i festivo/i: {{names}}",
+    "WEEKENDS": "Fine settimana",
+    "HOLIDAYS": "Giorni festivi",
+    "YOUR_VACATION": "Le tue vacanze",
+    "EXTENDED_PERIOD": "Periodo esteso",
+    "AVAILABLE_DAYS": "Giorni di vacanza disponibili",
+    "CALCULATE_PLAN": "Calcola piano"
+  },
+  "LANGUAGE": {
+    "SELECT": "Seleziona la lingua"
+  },
+  "YEAR": {
+    "TITLE": "Seleziona Anno",
+    "SELECT_PLACEHOLDER": "Scegli un anno"
+  },
+  "CANTON": {
+    "TITLE": "Seleziona Cantone",
+    "SELECT_PLACEHOLDER": "Scegli un cantone",
+    "ZH": "Zurigo",
+    "BE": "Berna",
+    "LU": "Lucerna",
+    "UR": "Uri",
+    "SZ": "Svitto",
+    "OW": "Obvaldo",
+    "NW": "Nidvaldo",
+    "GL": "Glarona",
+    "ZG": "Zugo",
+    "FR": "Friburgo",
+    "SO": "Soletta",
+    "BS": "Basilea Città",
+    "BL": "Basilea Campagna",
+    "SH": "Sciaffusa",
+    "AR": "Appenzello Esterno",
+    "AI": "Appenzello Interno",
+    "SG": "San Gallo",
+    "GR": "Grigioni",
+    "AG": "Argovia",
+    "TG": "Turgovia",
+    "TI": "Ticino",
+    "VD": "Vaud",
+    "VS": "Vallese",
+    "NE": "Neuchâtel",
+    "GE": "Ginevra",
+    "JU": "Giura"
+  },
+  "HOLIDAYS": {
+    "TITLE": "Calendario delle festività",
+    "SUBTITLE": "Clicca sulle date per aggiungere/rimuovere festività personalizzate",
+    "WEEKEND": "Fine settimana",
+    "PUBLIC_HOLIDAY": "Festività pubblica",
+    "CUSTOM_HOLIDAY": "Festività personalizzata",
+    "REMOVED_HOLIDAY": "Festività rimossa",
+    "INSTRUCTIONS": "Clicca su un giorno per attivarlo/disattivarlo come festivo"
+  },
+  "DAYS": {
+    "MON": "L",
+    "TUE": "M",
+    "WED": "M",
+    "THU": "G",
+    "FRI": "V",
+    "SAT": "S",
+    "SUN": "D"
+  },
+  "DEBUG": {
+    "CURRENT_LANG": "Lingua corrente",
+    "DEFAULT_LANG": "Lingua predefinita",
+    "AVAILABLE_LANGS": "Lingue disponibili",
+    "FORCE_REFRESH": "Forza aggiornamento"
+  }
+} 

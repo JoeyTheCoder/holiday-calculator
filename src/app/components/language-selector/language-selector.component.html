@@ -1,0 +1,17 @@
+<div class="language-selector-container">
+  <ion-button (click)="toggleLanguageOptions()" fill="clear" class="language-button">
+    <span class="language-flag">{{ getCurrentLanguageFlag() }}</span>
+    <span class="language-name">{{ getCurrentLanguageName() }}</span>
+  </ion-button>
+
+  <ion-select 
+    #langSelect
+    [value]="selectedLanguage" 
+    (ionChange)="onLanguageChange($event)"
+    interface="popover"
+    [hidden]="true">
+    <ion-select-option *ngFor="let lang of languages" [value]="lang.code">
+      {{ lang.flag }} {{ lang.name }}
+    </ion-select-option>
+  </ion-select>
+</div> 

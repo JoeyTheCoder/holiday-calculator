@@ -1,13 +1,61 @@
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Component, NgZone } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { arrowBack, arrowForward } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
+  imports: [IonicModule, CommonModule]
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    private router: Router,
+    private zone: NgZone,
+    private translate: TranslateService
+  ) {
+    this.initializeApp();
+    // Register Ionicons
+    addIcons({
+      'arrow-back': arrowBack,
+      'arrow-forward': arrowForward
+    });
+  }
+
+  initializeApp() {
+    // Fix hydration issues by forcing a navigation after app is ready
+    setTimeout(() => {
+      this.zone.run(() => {
+        // Force refresh the current route
+        const currentUrl = this.router.url;
+        this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+          this.router.navigate([currentUrl]);
+        });
+      });
+    }, 100);
+    
+    // Fix hydration issues by removing page-invisible classes
+    document.addEventListener('ionViewDidEnter', () => {
+      const invisiblePages = document.querySelectorAll('.ion-page-invisible');
+      invisiblePages.forEach(page => {
+        page.classList.remove('ion-page-invisible');
+      });
+    });
+
+    // Make sure a default language is set
+    this.translate.setDefaultLang('en');
+    
+    // Force translation to be loaded with the default language
+    this.translate.use('en').subscribe(
+      () => console.log('Default translations loaded'),
+      err => console.error('Error loading translations', err)
+    );
+    
+    console.log('App component initialized');
+  }
 }

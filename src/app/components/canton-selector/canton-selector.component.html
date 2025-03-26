@@ -1,14 +1,16 @@
-
 <ion-card>
   <ion-card-header>
-    <ion-card-title>Select Your Canton</ion-card-title>
+    <ion-card-title>{{ 'CANTON.TITLE' | translate }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
     <ion-item>
       <ion-label>Canton</ion-label>
-      <ion-select [(ngModel)]="selectedCanton" (ionChange)="onCantonChange()">
+      <ion-select 
+        [value]="selectedCanton" 
+        (ionChange)="onCantonChange($event)"
+        placeholder="{{ 'CANTON.SELECT_PLACEHOLDER' | translate }}">
         <ion-select-option *ngFor="let canton of cantons" [value]="canton.code">
-          {{ canton.name }}
+          {{ 'CANTON.' + canton.code | translate }} ({{ canton.code }})
         </ion-select-option>
       </ion-select>
     </ion-item>

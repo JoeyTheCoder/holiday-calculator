@@ -2,27 +2,27 @@
 
 ion-header {
   ion-toolbar {
-    --background: #000000;
-    --color: white;
+    --background: #000000 !important;
+    --color: white !important;
   }
 }
 
 ion-content {
+  --background: linear-gradient(135deg, #3A1C71 0%, #D76D77 50%, #FFAF7B 100%) !important;
   --padding-start: 16px;
   --padding-end: 16px;
-  --background: linear-gradient(135deg, #3A1C71 0%, #D76D77 50%, #FFAF7B 100%);
 }
 
 // Results styling
 .result-card {
-  border-left: 4px solid #0056b3;
+  border-left: 4px solid #432171;
 }
 
 // Make the vacation days input stand out
 ion-input[type="number"] {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #0056b3;
+  color: #432171;
 }
 
 // Add a bit of spacing between components
@@ -37,7 +37,7 @@ ion-button[expand="block"] {
   margin-top: 20px;
   height: 48px;
   font-size: 1.1rem;
-  --background: #0056b3;
+  --background: #432171;
   --box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
 }
 
@@ -45,7 +45,7 @@ ion-button[expand="block"] {
 
 .results-card {
   margin-top: 32px;
-  border-left: 4px solid #0056b3;
+  border-left: 4px solid #432171;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -68,7 +68,7 @@ ion-button[expand="block"] {
   .stat-value {
     font-size: 2rem;
     font-weight: 700;
-    color: #0056b3;
+    color: #432171;
     line-height: 1.2;
   }
   
@@ -110,7 +110,7 @@ ion-button[expand="block"] {
   font-weight: 500;
   
   .period-date {
-    color: #0056b3;
+    color: #432171;
   }
   
   .period-to {
@@ -121,7 +121,7 @@ ion-button[expand="block"] {
 
 .period-days {
   font-weight: 600;
-  color: #0056b3;
+  color: #432171;
   padding: 4px 10px;
   background-color: rgba(0, 86, 179, 0.1);
   border-radius: 20px;
@@ -162,7 +162,7 @@ ion-button[expand="block"] {
   
   &.vacation {
     background-color: rgba(0, 86, 179, 0.1);
-    border: 1px solid #0056b3;
+    border: 1px solid #432171;
   }
   
   &.workday {
@@ -207,7 +207,7 @@ ion-button[expand="block"] {
   
   &.vacation {
     background-color: rgba(0, 86, 179, 0.1);
-    border: 1px solid #0056b3;
+    border: 1px solid #432171;
   }
 }
 
@@ -264,5 +264,71 @@ ion-button[expand="block"] {
         font-size: 1rem;
       }
     }
+  }
+}
+
+.language-selector {
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  
+  ion-select {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    --border-radius: 8px;
+    --background: rgba(255, 255, 255, 0.15);
+    --color: white;
+    --placeholder-color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    
+    &::part(icon) {
+      color: rgba(255, 255, 255, 0.8);
+      opacity: 0.8;
+    }
+    
+    &:hover {
+      --background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+.modern-header {
+  ion-toolbar, .header-toolbar {
+    --background: white !important;
+    --color: #333 !important;
+    --border-width: 0;
+    --min-height: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+
+  .app-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+  }
+
+  .language-selector {
+    margin-right: 8px;
   }
 }

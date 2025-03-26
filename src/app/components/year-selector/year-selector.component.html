@@ -1,12 +1,17 @@
 <ion-card>
   <ion-card-header>
-    <ion-card-title>Year</ion-card-title>
-    <ion-card-subtitle>Select the year for your holiday planning</ion-card-subtitle>
+    <ion-card-title>{{ 'YEAR.TITLE' | translate }}</ion-card-title>
+    <ion-card-subtitle></ion-card-subtitle>
   </ion-card-header>
   
   <ion-card-content>
-    <ion-select [(ngModel)]="selectedYear" (ionChange)="onYearChange()" label="Select Year" label-placement="floating">
-      <ion-select-option *ngFor="let year of availableYears" [value]="year">{{ year }}</ion-select-option>
+    <ion-select 
+      [value]="selectedYear" 
+      (ionChange)="onYearChange($event)"
+      placeholder="{{ 'YEAR.SELECT_PLACEHOLDER' | translate }}">
+      <ion-select-option *ngFor="let year of availableYears" [value]="year">
+        {{ year }}
+      </ion-select-option>
     </ion-select>
   </ion-card-content>
 </ion-card> 

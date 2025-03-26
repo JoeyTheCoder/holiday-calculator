@@ -1,0 +1,86 @@
+{
+  "APP": {
+    "TITLE": "Ferienoptimierer",
+    "SUBTITLE": "Optimieren Sie Ihre Ferientage für maximale Freizeit!",
+    "WELCOME": "Willkommen beim Ferienoptimierer",
+    "DESCRIPTION": "Planen Sie Ihre Ferientage strategisch, um Ihre Freizeit zu maximieren. Unten finden Sie Optimierungsvorschläge für das nächste Jahr."
+  },
+  "VACATION": {
+    "TOTAL_DAYS_OFF": "Gesamte freie Tage",
+    "VACATION_DAYS_USED": "Verwendete Ferientage",
+    "EXTRA_DAYS_GAINED": "Zusätzliche Tage gewonnen",
+    "SUGGESTED_PERIODS": "Vorgeschlagene Ferienperioden",
+    "VACATION_DAYS_NEEDED": "Ferientage benötigt",
+    "BONUS_DAYS_GAINED": "Bonustage gewonnen",
+    "FULL_WORK_WEEK": "Komplette Arbeitswoche",
+    "STRATEGIC_TIME_OFF": "Strategische Auszeit",
+    "INCLUDES_HOLIDAYS": "Enthält {{count}} Feiertag(e): {{names}}",
+    "WEEKENDS": "Wochenenden",
+    "HOLIDAYS": "Feiertage",
+    "YOUR_VACATION": "Ihre Ferientage",
+    "EXTENDED_PERIOD": "Erweiterte Periode",
+    "AVAILABLE_DAYS": "Verfügbare Ferientage",
+    "CALCULATE_PLAN": "Optimalen Ferienplan berechnen"
+  },
+  "LANGUAGE": {
+    "SELECT": "Sprache auswählen"
+  },
+  "YEAR": {
+    "TITLE": "Jahr auswählen",
+    "SELECT_PLACEHOLDER": "Jahr wählen"
+  },
+  "CANTON": {
+    "TITLE": "Kanton auswählen",
+    "SELECT_PLACEHOLDER": "Kanton wählen",
+    "ZH": "Zürich",
+    "BE": "Bern",
+    "LU": "Luzern",
+    "UR": "Uri",
+    "SZ": "Schwyz",
+    "OW": "Obwalden",
+    "NW": "Nidwalden",
+    "GL": "Glarus",
+    "ZG": "Zug",
+    "FR": "Freiburg",
+    "SO": "Solothurn",
+    "BS": "Basel-Stadt",
+    "BL": "Basel-Landschaft",
+    "SH": "Schaffhausen",
+    "AR": "Appenzell Ausserrhoden",
+    "AI": "Appenzell Innerrhoden",
+    "SG": "St. Gallen",
+    "GR": "Graubünden",
+    "AG": "Aargau",
+    "TG": "Thurgau",
+    "TI": "Tessin",
+    "VD": "Waadt",
+    "VS": "Wallis",
+    "NE": "Neuenburg",
+    "GE": "Genf",
+    "JU": "Jura"
+  },
+  "HOLIDAYS": {
+    "TITLE": "Feiertagskalender",
+    "SUBTITLE": "Klicken Sie auf Daten, um benutzerdefinierte Feiertage hinzuzufügen/zu entfernen",
+    "WEEKEND": "Wochenende",
+    "PUBLIC_HOLIDAY": "Öffentlicher Feiertag",
+    "CUSTOM_HOLIDAY": "Benutzerdefinierter Feiertag",
+    "REMOVED_HOLIDAY": "Entfernter Feiertag",
+    "INSTRUCTIONS": "Klicken Sie auf einen Tag, um ihn als Feiertag zu markieren/demarkieren"
+  },
+  "DAYS": {
+    "MON": "M",
+    "TUE": "D",
+    "WED": "M",
+    "THU": "D",
+    "FRI": "F",
+    "SAT": "S",
+    "SUN": "S"
+  },
+  "DEBUG": {
+    "CURRENT_LANG": "Aktuelle Sprache",
+    "DEFAULT_LANG": "Standardsprache",
+    "AVAILABLE_LANGS": "Verfügbare Sprachen",
+    "FORCE_REFRESH": "Aktualisierung erzwingen"
+  }
+} 

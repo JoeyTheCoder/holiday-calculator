@@ -1,11 +1,14 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy } from '@angular/core';
 import { IonIcon, IonCard, IonCardHeader, IonCardTitle, 
          IonCardContent, IonCardSubtitle } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { HolidayService } from '../../services/holiday.service';
+import { LanguageService } from '../../services/language.service';
+import { Subscription } from 'rxjs';
 
 interface TimelineDay {
   date: Date;
@@ -24,32 +27,64 @@ interface TimelineDay {
   styleUrls: ['./vacation-optimizer.component.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, 
+    CommonModule, FormsModule, TranslateModule,
     IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle
   ]
 })
-export class VacationOptimizerComponent implements OnChanges {
+export class VacationOptimizerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() optimizationResult: any;
   @Input() availableDays: number = 0;
   
   currentYear = new Date().getFullYear();
-
-  constructor(private holidayService: HolidayService) {
+  private langSubscription: Subscription = new Subscription();
+  
+  constructor(
+    private holidayService: HolidayService,
+    private translateService: TranslateService,
+    private languageService: LanguageService
+  ) {
     addIcons({
       calendarOutline,
       timeOutline,
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    // Reset or update component when inputs change
+  ngOnInit() {
+    // Subscribe to language changes
+    this.langSubscription = this.languageService.currentLanguage$.subscribe(lang => {
+      // Update date formatting and other locale-specific logic when language changes
+      this.updateLocaleSpecificData(lang);
+    });
+  }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    // Implement ngOnChanges to fix the error
+    if (changes['optimizationResult'] && changes['optimizationResult'].currentValue) {
+      // Handle changes to optimization result if needed
+    }
+  }
+  
+  ngOnDestroy() {
+    // Clean up subscription to prevent memory leaks
+    if (this.langSubscription) {
+      this.langSubscription.unsubscribe();
+    }
+  }
+
+  updateLocaleSpecificData(locale: string) {
+    // This method can be used to update any locale-specific data
+    console.log('Language updated to', locale);
+    
+    // If you need to refresh any data or UI elements based on language, do it here
+    // No need to force refresh as Angular change detection should handle this
   }
 
   formatDate(date: string | Date): string {
     if (!date) return '';
     
+    // Use the current language locale for date formatting
     const d = new Date(date);
-    return d.toLocaleDateString('en-CH', { 
+    return d.toLocaleDateString(this.translateService.currentLang || 'en-CH', { 
       day: '2-digit', 
       month: '2-digit',
       year: 'numeric'
@@ -102,6 +137,9 @@ export class VacationOptimizerComponent implements OnChanges {
     // Clone the start date to avoid modifying it
     const currentDate = new Date(extendedStart);
     
+    // Use the current language for all date formatting
+    const currentLocale = this.translateService.currentLang || 'en-CH';
+    
     // Generate days for the timeline
     while (currentDate <= extendedEnd) {
       // European format: 0 = Monday, 6 = Sunday (convert from JS format where 0 = Sunday)
@@ -130,13 +168,13 @@ export class VacationOptimizerComponent implements OnChanges {
         isHoliday,
         isVacation,
         isExtendedDay,
-        label: currentDate.toLocaleDateString('de-CH', { 
+        label: currentDate.toLocaleDateString(currentLocale, { 
           weekday: 'long',
           month: 'short', 
           day: 'numeric'
         }),
         shortLabel: currentDate.getDate().toString(),
-        weekdayLabel: currentDate.toLocaleDateString('de-CH', { weekday: 'short' }).substring(0, 2)
+        weekdayLabel: currentDate.toLocaleDateString(currentLocale, { weekday: 'short' }).substring(0, 2)
       });
       
       // Move to the next day
@@ -154,15 +192,18 @@ export class VacationOptimizerComponent implements OnChanges {
     
     if (start.getDay() === 1 && end.getDay() === 5 && 
         this.holidayService.countBusinessDaysWithoutHolidays(start, end) === 5) {
-      return "Full work week";
+      return this.translateService.instant('VACATION.FULL_WORK_WEEK');
     }
     
     // Check if it contains holidays
     const holidays = this.holidayService.getHolidaysInRange(start, end, this.optimizationResult.canton);
-    if (holidays.length > 0) {
-      return `Includes ${holidays.length} holiday(s): ${holidays.map((h: any) => h.name).join(', ')}`;
+    if (holidays && holidays.length > 0) {
+      return this.translateService.instant('VACATION.INCLUDES_HOLIDAYS', {
+        count: holidays.length,
+        names: holidays.map((h: any) => h.name).join(', ')
+      });
     }
     
-    return "Strategic time off";
+    return this.translateService.instant('VACATION.STRATEGIC_TIME_OFF');
   }
 }

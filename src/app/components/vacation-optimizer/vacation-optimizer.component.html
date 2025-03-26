@@ -4,8 +4,8 @@
 
 <ion-card *ngIf="optimizationResult">
   <ion-card-header>
-    <ion-card-title>Vacation Optimization for {{ optimizationResult.year || currentYear }}</ion-card-title>
-    <ion-card-subtitle>Strategic planning for maximum time off</ion-card-subtitle>
+    <ion-card-title>{{ 'APP.TITLE' | translate }} {{ optimizationResult.year || currentYear }}</ion-card-title>
+    <ion-card-subtitle>{{ 'APP.SUBTITLE' | translate }}</ion-card-subtitle>
   </ion-card-header>
   
   <ion-card-content>
@@ -13,83 +13,75 @@
     <div class="optimization-summary">
       <div class="summary-stat">
         <div class="stat-value">{{ optimizationResult.totalDaysOff }}</div>
-        <div class="stat-label">Total Days Off</div>
+        <div class="stat-label">{{ 'VACATION.TOTAL_DAYS_OFF' | translate }}</div>
       </div>
       
       <div class="summary-stat">
         <div class="stat-value">{{ optimizationResult.daysUsed }}</div>
-        <div class="stat-label">Vacation Days Used</div>
+        <div class="stat-label">{{ 'VACATION.VACATION_DAYS_USED' | translate }}</div>
       </div>
       
       <div class="summary-stat">
         <div class="stat-value">{{ calculateDaysGained() }}</div>
-        <div class="stat-label">Extra Days Gained</div>
+        <div class="stat-label">{{ 'VACATION.EXTRA_DAYS_GAINED' | translate }}</div>
       </div>
     </div>
     
     <!-- Suggested vacation periods -->
     <div class="vacation-periods">
-      <h4>Suggested vacation periods</h4>
+      <h4>{{ 'VACATION.SUGGESTED_PERIODS' | translate }}</h4>
       
       <div class="vacation-period" *ngFor="let period of optimizationResult.suggestedPeriods">
         <div class="period-header">
-          <div class="period-type-tag" [class.holiday-period]="getPeriodDescription(period).includes('holiday')" 
-                                     [class.full-week]="getPeriodDescription(period).includes('Full work week')">
-            {{ getPeriodDescription(period) }}
-          </div>
           <div class="period-dates">
-            <span class="period-date">{{ formatDate(period.start) }}</span>
-            <span class="period-to">to</span>
-            <span class="period-date">{{ formatDate(period.end) }}</span>
+            {{ formatDate(period.start) }} - {{ formatDate(period.end) }}
           </div>
-          <div class="period-days">
-            {{ period.totalDaysOff }} days off
+          <div class="period-type-tag" 
+               [ngClass]="{'holiday-period': period.includesHolidays, 'full-week': !period.includesHolidays}">
+            {{ getPeriodDescription(period) }}
           </div>
         </div>
         
-        <!-- Calendar visualization -->
-        <div class="period-timeline">
-          <div class="timeline-days">
-            <div *ngFor="let day of generateTimelineDays(period)" 
-                 class="timeline-day"
-                 [class.weekend]="day.isWeekend"
-                 [class.holiday]="day.isHoliday"
-                 [class.vacation]="day.isVacation"
-                 [class.extended-day]="day.isExtendedDay"
-                 [title]="day.label">
-              <div class="weekday-label">{{ day.weekdayLabel }}</div>
-              <div class="day-label">{{ day.shortLabel }}</div>
-            </div>
+        <div class="timeline-days">
+          <div *ngFor="let day of generateTimelineDays(period)" 
+               class="timeline-day"
+               [class.weekend]="day.isWeekend"
+               [class.holiday]="day.isHoliday"
+               [class.vacation]="day.isVacation"
+               [class.extended-day]="day.isExtendedDay"
+               [title]="day.label">
+            <div class="weekday-label">{{ day.weekdayLabel }}</div>
+            <div class="day-label">{{ day.shortLabel }}</div>
           </div>
-          
-          <div class="timeline-legend">
-            <div class="legend-item">
-              <div class="legend-color weekend"></div>
-              <div class="legend-text">Weekends</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color holiday"></div>
-              <div class="legend-text">Holidays</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color vacation"></div>
-              <div class="legend-text">Your Vacation</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color extended-day"></div>
-              <div class="legend-text">Extended Period</div>
-            </div>
+        </div>
+        
+        <div class="timeline-legend">
+          <div class="legend-item">
+            <div class="legend-color weekend"></div>
+            <div class="legend-text">{{ 'VACATION.WEEKENDS' | translate }}</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color holiday"></div>
+            <div class="legend-text">{{ 'VACATION.HOLIDAYS' | translate }}</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color vacation"></div>
+            <div class="legend-text">{{ 'VACATION.YOUR_VACATION' | translate }}</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color extended-day"></div>
+            <div class="legend-text">{{ 'VACATION.EXTENDED_PERIOD' | translate }}</div>
           </div>
         </div>
         
         <div class="period-details">
           <div class="detail-item">
             <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ period.daysUsed }} vacation days needed</span>
+            <span>{{ period.daysUsed }} {{ 'VACATION.VACATION_DAYS_NEEDED' | translate }}</span>
           </div>
           <div class="detail-item">
             <ion-icon name="time-outline"></ion-icon>
-            <span>{{ period.totalDaysOff - period.daysUsed }} bonus days gained</span>
+            <span>{{ period.totalDaysOff - period.daysUsed }} {{ 'VACATION.BONUS_DAYS_GAINED' | translate }}</span>
           </div>
         </div>
       </div>

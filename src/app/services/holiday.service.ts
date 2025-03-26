@@ -1456,4 +1456,31 @@ export class HolidayService {
            date1.getMonth() === date2.getMonth() &&
            date1.getFullYear() === date2.getFullYear();
   }
+
+  // Add this method if it doesn't exist
+  getHolidays(canton: string, year: number): any[] {
+    // This is a fallback implementation
+    const holidays = [];
+    // Create a date for each month to check for holidays
+    for (let month = 0; month < 12; month++) {
+      for (let day = 1; day <= 31; day++) {
+        try {
+          const date = new Date(year, month, day);
+          // Skip invalid dates
+          if (date.getMonth() !== month) continue;
+          
+          if (this.isPublicHoliday(date, canton)) {
+            holidays.push({
+              date: date,
+              name: 'Holiday', // Placeholder name
+              isPublicHoliday: true
+            });
+          }
+        } catch (e) {
+          // Skip errors for invalid dates
+        }
+      }
+    }
+    return holidays;
+  }
 } 

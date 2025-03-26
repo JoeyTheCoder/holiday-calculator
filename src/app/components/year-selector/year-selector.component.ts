@@ -1,14 +1,20 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, 
+         IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-year-selector',
   templateUrl: './year-selector.component.html',
   styleUrls: ['./year-selector.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [
+    CommonModule, FormsModule, TranslateModule,
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+    IonSelect, IonSelectOption
+  ]
 })
 export class YearSelectorComponent implements OnInit {
   @Output() yearChanged = new EventEmitter<number>();
@@ -16,17 +22,20 @@ export class YearSelectorComponent implements OnInit {
   selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [];
   
-  constructor() { }
-
-  ngOnInit() {
+  constructor() {
     const currentYear = new Date().getFullYear();
-    // Generate years (current year and 5 years into the future)
+    // Generate years from current year to current year + 5
     for (let year = currentYear; year <= currentYear + 5; year++) {
       this.availableYears.push(year);
     }
   }
-
-  onYearChange() {
-    this.yearChanged.emit(this.selectedYear);
+  
+  ngOnInit() { }
+  
+  // Fix method to accept the event parameter
+  onYearChange(event: any) {
+    const year = event.detail.value;
+    this.selectedYear = year;
+    this.yearChanged.emit(year);
   }
 } 

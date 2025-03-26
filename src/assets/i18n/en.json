@@ -1,0 +1,86 @@
+{
+  "APP": {
+    "TITLE": "Vacation Optimizer",
+    "SUBTITLE": "Strategic planning for maximum time off",
+    "WELCOME": "Welcome to the Vacation Optimizer",
+    "DESCRIPTION": "Plan your vacation days strategically to maximize your time off. Below are optimization suggestions for the coming year."
+  },
+  "VACATION": {
+    "TOTAL_DAYS_OFF": "Total days off",
+    "VACATION_DAYS_USED": "Vacation days used",
+    "EXTRA_DAYS_GAINED": "Extra days gained",
+    "SUGGESTED_PERIODS": "Suggested vacation periods",
+    "VACATION_DAYS_NEEDED": "vacation days needed",
+    "BONUS_DAYS_GAINED": "bonus days gained",
+    "FULL_WORK_WEEK": "Full work week",
+    "STRATEGIC_TIME_OFF": "Strategic time off",
+    "INCLUDES_HOLIDAYS": "Includes {{count}} holiday(s): {{names}}",
+    "WEEKENDS": "Weekends",
+    "HOLIDAYS": "Holidays",
+    "YOUR_VACATION": "Your Vacation",
+    "EXTENDED_PERIOD": "Extended period",
+    "AVAILABLE_DAYS": "Available vacation days",
+    "CALCULATE_PLAN": "Calculate plan"
+  },
+  "LANGUAGE": {
+    "SELECT": "Select language"
+  },
+  "YEAR": {
+    "TITLE": "Select Year",
+    "SELECT_PLACEHOLDER": "Choose a year"
+  },
+  "CANTON": {
+    "TITLE": "Select Canton",
+    "SELECT_PLACEHOLDER": "Choose a canton",
+    "ZH": "Zürich",
+    "BE": "Bern",
+    "LU": "Lucerne",
+    "UR": "Uri",
+    "SZ": "Schwyz",
+    "OW": "Obwalden",
+    "NW": "Nidwalden",
+    "GL": "Glarus",
+    "ZG": "Zug",
+    "FR": "Fribourg",
+    "SO": "Solothurn",
+    "BS": "Basel-Stadt",
+    "BL": "Basel-Landschaft",
+    "SH": "Schaffhausen",
+    "AR": "Appenzell Ausserrhoden",
+    "AI": "Appenzell Innerrhoden",
+    "SG": "St. Gallen",
+    "GR": "Graubünden",
+    "AG": "Aargau",
+    "TG": "Thurgau",
+    "TI": "Ticino",
+    "VD": "Vaud",
+    "VS": "Valais",
+    "NE": "Neuchâtel",
+    "GE": "Geneva",
+    "JU": "Jura"
+  },
+  "HOLIDAYS": {
+    "TITLE": "Holiday Calendar",
+    "SUBTITLE": "Click on dates to add/remove custom holidays",
+    "WEEKEND": "Weekend",
+    "PUBLIC_HOLIDAY": "Public Holiday",
+    "CUSTOM_HOLIDAY": "Custom Holiday",
+    "REMOVED_HOLIDAY": "Removed Holiday",
+    "INSTRUCTIONS": "Click a day to toggle it as a holiday"
+  },
+  "DAYS": {
+    "MON": "M",
+    "TUE": "T",
+    "WED": "W",
+    "THU": "T",
+    "FRI": "F",
+    "SAT": "S",
+    "SUN": "S"
+  },
+  "DEBUG": {
+    "CURRENT_LANG": "Current Lang",
+    "DEFAULT_LANG": "Default Lang",
+    "AVAILABLE_LANGS": "Available Langs",
+    "FORCE_REFRESH": "Force Refresh"
+  }
+} 

@@ -1,0 +1,41 @@
+.language-selector-container {
+  display: flex;
+  align-items: center;
+}
+
+.language-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  
+  /* Fix to ensure content is properly contained */
+  --background: transparent;
+  
+  /* Setting a fixed width can help maintain consistency */
+  min-width: 40px;
+  font-weight: normal;
+  text-transform: none;
+}
+
+.language-button::part(native) {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.language-name {
+  margin-left: 6px;
+  font-size: 14px;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .language-name {
+    display: inline;
+  }
+  
+  .language-button {
+    min-width: 120px;
+  }
+} 

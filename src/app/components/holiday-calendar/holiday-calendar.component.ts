@@ -1,13 +1,19 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { HolidayService } from '../../services/holiday.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+         IonButton, IonIcon, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { arrowBack, arrowForward } from 'ionicons/icons';
 
 interface CalendarDay {
   date: Date;
+  dayNumber: number;
   isCurrentMonth: boolean;
   isToday: boolean;
+  isWeekend: boolean;
   isHoliday: boolean;
   isCustomHoliday: boolean;
   isRemovedHoliday: boolean;
@@ -19,10 +25,14 @@ interface CalendarDay {
   templateUrl: './holiday-calendar.component.html',
   styleUrls: ['./holiday-calendar.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [
+    CommonModule, FormsModule, TranslateModule,
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+    IonButton, IonIcon, IonItem, IonLabel
+  ]
 })
 export class HolidayCalendarComponent implements OnInit, OnChanges {
-  @Input() canton: string = '';
+  @Input() canton: string = 'ZH';
   @Input() year: number = new Date().getFullYear();
   
   @Output() holidayAdded = new EventEmitter<Date>();
@@ -30,41 +40,65 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
   
   currentDate = new Date();
   currentMonth: number = this.currentDate.getMonth();
+  currentYear: number = this.currentDate.getFullYear();
   
   // Track custom and removed holidays in component for display
   customHolidays: Date[] = [];
   removedHolidays: Date[] = [];
   
   calendarDays: CalendarDay[] = [];
-  weekDays: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  
+  // Rename weekDays to weekdays to match the template
+  weekdays: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  
   monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
   
   publicHolidays: any[] = [];
 
-  constructor(private holidayService: HolidayService) { }
+  // Add this property to resolve the error
+  currentMonthName: string = '';
+
+  constructor(
+    private holidayService: HolidayService,
+    private translateService: TranslateService
+  ) {
+    addIcons({
+      arrowBack,
+      arrowForward
+    });
+  }
 
   ngOnInit() {
+    // Register the icons
+    addIcons({
+      arrowBack,
+      arrowForward
+    });
+    
+    // Initialize the calendar
+    this.updateMonthName();
     this.generateCalendarDays();
+    
+    // Load holidays for the current canton/year
+    this.loadHolidays();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['canton'] && !changes['canton'].firstChange) || 
-        (changes['year'] && !changes['year'].firstChange)) {
+    // When canton or year changes, update the calendar
+    if (changes['canton'] || changes['year']) {
       this.loadHolidays();
+      this.generateCalendarDays();
     }
   }
 
   loadHolidays() {
-    if (this.canton) {
-      this.holidayService.getHolidaysForCanton(this.canton, this.year).subscribe(holidays => {
-        this.publicHolidays = holidays;
-        this.generateCalendarDays();
-      });
-    } else {
-      this.publicHolidays = [];
-      this.generateCalendarDays();
-    }
+    // Load holidays for the current canton and year
+    this.publicHolidays = this.holidayService.getHolidays(this.canton, this.year) || [];
+    
+    // Clear custom and removed holidays when canton/year changes
+    this.customHolidays = [];
+    this.removedHolidays = [];
   }
 
   generateCalendarDays(): void {
@@ -85,62 +119,37 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
       const daysInPrevMonth = prevMonth.getDate();
       
       for (let i = firstDayEuropeanWeekday - 1; i >= 0; i--) {
-        const day = daysInPrevMonth - i;
-        const date = new Date(this.year, this.currentMonth - 1, day);
+        const dayNum = daysInPrevMonth - i;
+        const date = new Date(this.year, this.currentMonth - 1, dayNum);
         this.addCalendarDay(date, false);
       }
     }
     
-    // Add all days in the current month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      const date = new Date(this.year, this.currentMonth, i);
+    // Add days for the current month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const date = new Date(this.year, this.currentMonth, day);
       this.addCalendarDay(date, true);
     }
     
-    // Include days from the next month to complete the last week
-    // In European format, the last day index is 6 (Sunday)
-    const lastDayOfWeek = lastDay.getDay();
-    const lastDayEuropeanWeekday = lastDayOfWeek === 0 ? 6 : lastDayOfWeek - 1;
+    // Include days from the next month to complete the grid
+    const totalDaysAdded = this.calendarDays.length;
+    const remainingDays = 42 - totalDaysAdded; // 6 rows of 7 days
     
-    if (lastDayEuropeanWeekday < 6) {
-      for (let i = 1; i <= 6 - lastDayEuropeanWeekday; i++) {
-        const date = new Date(this.year, this.currentMonth + 1, i);
-        this.addCalendarDay(date, false);
-      }
+    for (let i = 1; i <= remainingDays; i++) {
+      const date = new Date(this.year, this.currentMonth + 1, i);
+      this.addCalendarDay(date, false);
     }
   }
-
+  
   addCalendarDay(date: Date, isCurrentMonth: boolean) {
     const today = new Date();
     const isToday = date.getDate() === today.getDate() && 
-                    date.getMonth() === today.getMonth() && 
-                    date.getFullYear() === today.getFullYear();
+                   date.getMonth() === today.getMonth() && 
+                   date.getFullYear() === today.getFullYear();
     
-    // Check if it's a holiday using the holiday service directly
+    // Check if the date is a holiday
     const isHoliday = this.holidayService.isPublicHoliday(date, this.canton);
-    let holidayName = '';
-    
-    // Get holiday name if available
-    if (isHoliday && this.publicHolidays && this.publicHolidays.length > 0) {
-      // Format month and day for comparison
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${month}-${day}`;
-      
-      const holiday = this.publicHolidays.find(h => {
-        // Extract month and day from the holiday date string
-        const hDate = new Date(h.date);
-        const hMonth = String(hDate.getMonth() + 1).padStart(2, '0');
-        const hDay = String(hDate.getDate()).padStart(2, '0');
-        const hDateStr = `${hMonth}-${hDay}`;
-        
-        return hDateStr === dateStr;
-      });
-      
-      if (holiday) {
-        holidayName = holiday.name;
-      }
-    }
+    const holidayName = isHoliday ? this.findHolidayName(date) : undefined;
     
     // Check custom and removed holidays as before
     const isCustomHoliday = this.customHolidays.some(h => 
@@ -157,8 +166,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     
     this.calendarDays.push({
       date: new Date(date),
+      dayNumber: date.getDate(),
       isCurrentMonth,
       isToday,
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
       isHoliday: isHoliday && !isRemovedHoliday, // Only count as holiday if not removed
       isCustomHoliday,
       isRemovedHoliday,
@@ -166,28 +177,31 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     });
   }
 
-  prevMonth() {
+  // Rename prevMonth to previousMonth to match the template
+  previousMonth() {
     if (this.currentMonth === 0) {
       this.currentMonth = 11;
-      this.year--;
+      this.currentYear--;
     } else {
       this.currentMonth--;
     }
-    this.loadHolidays();
+    this.updateMonthName();
+    this.generateCalendarDays();
   }
 
   nextMonth() {
     if (this.currentMonth === 11) {
       this.currentMonth = 0;
-      this.year++;
+      this.currentYear++;
     } else {
       this.currentMonth++;
     }
-    this.loadHolidays();
+    this.updateMonthName();
+    this.generateCalendarDays();
   }
   
-  // Handle day click for adding/removing holidays
-  onDayClick(day: CalendarDay) {
+  // Rename onDayClick to toggleHoliday to match the template
+  toggleHoliday(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
     
     const clickedDate = new Date(day.date);
@@ -195,6 +209,8 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     if (day.isHoliday && !day.isRemovedHoliday) {
       // Remove public holiday
       this.removedHolidays.push(clickedDate);
+      day.isHoliday = false;
+      day.holidayName = undefined;
       this.holidayRemoved.emit(clickedDate);
     } else if (day.isCustomHoliday) {
       // Remove custom holiday
@@ -203,6 +219,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
         d.getMonth() !== clickedDate.getMonth() || 
         d.getFullYear() !== clickedDate.getFullYear()
       );
+      day.isCustomHoliday = false;
       this.holidayRemoved.emit(clickedDate);
     } else if (day.isRemovedHoliday) {
       // Restore removed holiday
@@ -211,9 +228,20 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
         d.getMonth() !== clickedDate.getMonth() || 
         d.getFullYear() !== clickedDate.getFullYear()
       );
+      day.isRemovedHoliday = false;
+      
+      // Check if it should be restored as a public holiday
+      const isPublicHoliday = this.holidayService.isPublicHoliday(clickedDate, this.canton);
+      if (isPublicHoliday) {
+        day.isHoliday = true;
+        day.holidayName = this.findHolidayName(clickedDate);
+      }
+      
+      this.holidayAdded.emit(clickedDate);
     } else {
       // Add custom holiday
       this.customHolidays.push(clickedDate);
+      day.isCustomHoliday = true;
       this.holidayAdded.emit(clickedDate);
     }
     
@@ -221,8 +249,28 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     this.generateCalendarDays();
   }
 
+  // Find holiday name method to replace getHolidayName
+  findHolidayName(date: Date): string {
+    // If we have holiday data loaded
+    for (const holiday of this.publicHolidays) {
+      const holidayDate = new Date(holiday.date);
+      if (holidayDate.getDate() === date.getDate() && 
+          holidayDate.getMonth() === date.getMonth()) {
+        return holiday.name || 'Holiday';
+      }
+    }
+    return 'Holiday';
+  }
+
   private getDaysOfWeek(): string[] {
     // European format (Monday first)
     return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  }
+
+  // Add this method to update the month name
+  updateMonthName() {
+    const date = new Date(this.currentYear, this.currentMonth, 1);
+    const locale = this.translateService.currentLang || 'en';
+    this.currentMonthName = date.toLocaleDateString(locale, { month: 'long' }).toUpperCase();
   }
 }

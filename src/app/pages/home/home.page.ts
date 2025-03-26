@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { IonContent, IonHeader, IonTitle, IonToolbar, 
          IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
          IonCardContent, IonButton, IonInput, IonItem, IonLabel,
          IonList, IonIcon } from '@ionic/angular/standalone';
 import { CantonSelectorComponent } from '../../components/canton-selector/canton-selector.component';
 import { HolidayCalendarComponent } from '../../components/holiday-calendar/holiday-calendar.component';
+import { YearSelectorComponent } from '../../components/year-selector/year-selector.component';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+import { DebugInfoComponent } from '../../components/debug-info/debug-info.component';
+import { VacationOptimizerComponent } from '../../components/vacation-optimizer/vacation-optimizer.component';
 import { HolidayService } from '../../services/holiday.service';
 import { addIcons } from 'ionicons';
 import { calendarOutline } from 'ionicons/icons';
-import { YearSelectorComponent } from '../../components/year-selector/year-selector.component';
-import { VacationOptimizerComponent } from '../../components/vacation-optimizer/vacation-optimizer.component';
 
 interface TimelineDay {
   date: Date;
@@ -28,24 +31,30 @@ interface TimelineDay {
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,
-    CantonSelectorComponent, HolidayCalendarComponent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonInput, IonItem, IonLabel,
-    IonList, IonIcon, YearSelectorComponent, VacationOptimizerComponent
+    CommonModule, FormsModule, TranslateModule,
+    IonContent, IonHeader, IonTitle, IonToolbar,
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
+    IonCardContent, IonButton, IonInput, IonItem, IonLabel,
+    IonList, IonIcon,
+    CantonSelectorComponent, YearSelectorComponent, HolidayCalendarComponent,
+    LanguageSelectorComponent, DebugInfoComponent, VacationOptimizerComponent
   ]
 })
 export class HomePage implements OnInit {
   selectedCanton: string = '';
-  selectedYear: number = new Date().getFullYear();
+  selectedYear: number = new Date().getFullYear() + 1;
   availableVacationDays: number = 20;
   optimizationResult: any = null;
   
   // Add custom holidays tracking
-  customHolidays: Date[] = [];
-  removedHolidays: Date[] = [];
+  customHolidays: any[] = [];
+  removedHolidays: any[] = [];
+  isDebug: boolean = false;
 
   constructor(private holidayService: HolidayService) {
     addIcons({ calendarOutline });
+    // Enable debug mode with URL parameter ?debug=true
+    this.isDebug = new URLSearchParams(window.location.search).get('debug') === 'true';
   }
 
   ngOnInit() {

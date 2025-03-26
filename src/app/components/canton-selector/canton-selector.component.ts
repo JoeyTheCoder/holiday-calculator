@@ -1,22 +1,33 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
+         IonItem, IonLabel, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
+
+interface Canton {
+  code: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-canton-selector',
   templateUrl: './canton-selector.component.html',
   styleUrls: ['./canton-selector.component.scss'],
   standalone: true,
-  imports: [IonicModule, FormsModule, CommonModule]
+  imports: [
+    CommonModule, FormsModule, TranslateModule,
+    IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
+    IonItem, IonLabel, IonSelect, IonSelectOption
+  ]
 })
 export class CantonSelectorComponent implements OnInit {
   @Output() cantonChanged = new EventEmitter<string>();
   
-  cantons = [
+  cantons: Canton[] = [
     { code: 'ZH', name: 'Zürich' },
     { code: 'BE', name: 'Bern' },
-    { code: 'LU', name: 'Luzern' },
+    { code: 'LU', name: 'Lucerne' },
     { code: 'UR', name: 'Uri' },
     { code: 'SZ', name: 'Schwyz' },
     { code: 'OW', name: 'Obwalden' },
@@ -53,7 +64,9 @@ export class CantonSelectorComponent implements OnInit {
     }, 0);
   }
 
-  onCantonChange() {
-    this.cantonChanged.emit(this.selectedCanton);
+  onCantonChange(event: any) {
+    const canton = event.detail.value;
+    this.selectedCanton = canton;
+    this.cantonChanged.emit(canton);
   }
 }

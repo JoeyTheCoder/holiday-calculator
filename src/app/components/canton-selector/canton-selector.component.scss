@@ -8,7 +8,7 @@ ion-select {
   width: 100%;
   max-width: 100%;
   font-weight: 500;
-  --placeholder-color: #0056b3;
+  --placeholder-color: #432171;
   --color: #000000;
 }
 
@@ -37,6 +37,6 @@ ion-card-content {
 
 // Make the selected item more prominent
 ::ng-deep .alert-radio-group .alert-radio-button[aria-checked="true"] .alert-radio-label {
-  color: #0056b3 !important;
+  color: #432171 !important;
   font-weight: 600;
 }

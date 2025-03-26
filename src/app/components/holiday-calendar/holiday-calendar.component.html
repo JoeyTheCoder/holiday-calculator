@@ -1,55 +1,68 @@
 <ion-card>
   <ion-card-header>
-    <ion-card-title>Holiday Calendar</ion-card-title>
-    <ion-card-subtitle>
-      Click on dates to add/remove holidays for your calculation
-    </ion-card-subtitle>
+    <ion-card-title>{{ 'HOLIDAYS.TITLE' | translate }}</ion-card-title>
+    <ion-card-subtitle>{{ 'HOLIDAYS.SUBTITLE' | translate }}</ion-card-subtitle>
   </ion-card-header>
-  
   <ion-card-content>
-    <div class="calendar-controls">
-      <ion-button fill="clear" (click)="prevMonth()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </ion-button>
-      <div class="month-year">{{ monthNames[currentMonth] }} {{ year }}</div>
-      <ion-button fill="clear" (click)="nextMonth()">
-        <ion-icon name="arrow-forward"></ion-icon>
-      </ion-button>
-    </div>
-    
-    <div class="calendar-grid">
-      <div class="weekdays">
-        <div *ngFor="let day of weekDays" class="weekday">{{ day }}</div>
+    <div class="calendar-container">
+      <!-- Calendar controls -->
+      <div class="calendar-header">
+        <ion-button fill="clear" (click)="previousMonth()">
+          <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        </ion-button>
+        <div style="color: black;" class="month-year-display">{{ currentMonthName | translate }} {{ currentYear }}</div>
+        <ion-button fill="clear" (click)="nextMonth()">
+          <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+        </ion-button>
       </div>
       
-      <div class="days">
+      <!-- Weekday headers -->
+      <div class="weekday-headers">
+        <div *ngFor="let day of weekdays" class="weekday-header">
+          {{ 'DAYS.' + day | translate }}
+        </div>
+      </div>
+      
+      <!-- Calendar days -->
+      <div class="calendar-days">
         <div *ngFor="let day of calendarDays" 
-             class="day" 
-             [class.current-month]="day.isCurrentMonth"
-             [class.today]="day.isToday"
-             [class.holiday]="day.isHoliday && !day.isRemovedHoliday"
-             [class.custom-holiday]="day.isCustomHoliday"
-             [class.removed-holiday]="day.isRemovedHoliday"
-             (click)="onDayClick(day)">
-          <div class="day-number">{{ day.date.getDate() }}</div>
-          <div *ngIf="(day.isHoliday && !day.isRemovedHoliday) || day.isCustomHoliday" class="holiday-indicator"></div>
+            class="calendar-day" 
+            [ngClass]="{ 
+              'other-month': !day.isCurrentMonth,
+              'is-today': day.isToday,
+              'is-weekend': day.isWeekend,
+              'is-holiday': day.isHoliday,
+              'custom-holiday': day.isCustomHoliday,
+              'removed-holiday': day.isRemovedHoliday
+            }"
+            (click)="toggleHoliday(day)">
+          <span class="day-number">{{ day.dayNumber }}</span>
+          <span *ngIf="day.holidayName" class="holiday-name">{{ day.holidayName }}</span>
         </div>
       </div>
     </div>
     
-    <div class="calendar-legend">
+    <div class="legend">
       <div class="legend-item">
-        <div class="legend-color holiday"></div>
-        <div class="legend-text">Public Holiday</div>
+        <div class="color-box weekend"></div>
+        <span>{{ 'HOLIDAYS.WEEKEND' | translate }}</span>
       </div>
       <div class="legend-item">
-        <div class="legend-color custom-holiday"></div>
-        <div class="legend-text">Custom Holiday</div>
+        <div class="color-box holiday"></div>
+        <span>{{ 'HOLIDAYS.PUBLIC_HOLIDAY' | translate }}</span>
       </div>
       <div class="legend-item">
-        <div class="legend-color removed-holiday"></div>
-        <div class="legend-text">Removed Holiday</div>
+        <div class="color-box custom-holiday"></div>
+        <span>{{ 'HOLIDAYS.CUSTOM_HOLIDAY' | translate }}</span>
+      </div>
+      <div class="legend-item">
+        <div class="color-box removed-holiday"></div>
+        <span>{{ 'HOLIDAYS.REMOVED_HOLIDAY' | translate }}</span>
       </div>
     </div>
+    
+    <ion-item lines="none" class="instructions">
+      <ion-label>{{ 'HOLIDAYS.INSTRUCTIONS' | translate }}</ion-label>
+    </ion-item>
   </ion-card-content>
 </ion-card>

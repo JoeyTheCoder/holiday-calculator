@@ -7,7 +7,7 @@ p:first-child {
 
 ion-card {
   margin-top: 24px;
-  border-left: 4px solid #0056b3;
+  border-left: 4px solid #432171;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -30,7 +30,7 @@ ion-card {
   .stat-value {
     font-size: 2rem;
     font-weight: 700;
-    color: #0056b3;
+    color: #432171;
     line-height: 1.2;
   }
   
@@ -75,7 +75,7 @@ ion-card {
   
   .period-date {
     font-weight: 600;
-    color: #0056b3;
+    color: #432171;
   }
   
   .period-to {
@@ -86,7 +86,7 @@ ion-card {
 
 .period-days {
   font-weight: 600;
-  color: #0056b3;
+  color: #432171;
   padding: 4px 10px;
   background-color: rgba(0, 86, 179, 0.1);
   border-radius: 20px;
@@ -105,7 +105,7 @@ ion-card {
     ion-icon {
       margin-right: 8px;
       font-size: 1.2rem;
-      color: #0056b3;
+      color: #432171;
     }
     
     &:last-child {
@@ -265,7 +265,7 @@ ion-card {
   
   &.full-week {
     background-color: #e8f4ff;
-    color: #0056b3;
-    border-left: 3px solid #0056b3;
+    color: #432171;
+    border-left: 3px solid #432171;
   }
 }

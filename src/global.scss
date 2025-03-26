@@ -38,10 +38,10 @@
 
 // Global styling for the entire app
 
-// App background
-ion-content {
-  --background: black;
-}
+// App background - comment this out or remove it
+// ion-content {
+//   --background: black;
+// }
 
 // Card styling for all components
 ion-card {
@@ -60,7 +60,7 @@ ion-card-title {
 }
 
 ion-card-subtitle {
-  color: #0056b3;
+  color: #432171;
   font-size: 1rem;
 }
 
@@ -71,7 +71,7 @@ ion-card-content {
 
 // Button styling
 ion-button {
-  --background: #0056b3;
+  --background: #432171;
   --background-hover: #003d82;
   --color: white;
   font-weight: 500;
@@ -80,14 +80,14 @@ ion-button {
 }
 
 ion-button.button-clear {
-  --color: #0056b3;
+  --color: #432171;
 }
 
 // Input styling
 ion-item {
   --background: white;
   --border-color: #e0e0e0;
-  --highlight-color-focused: #0056b3;
+  --highlight-color-focused: #432171;
   border-radius: 6px;
   margin-bottom: 8px;
 }
@@ -130,7 +130,110 @@ ion-content::before {
 }
 
 // Enhance header visibility
-ion-header ion-toolbar {
-  --background: rgba(179, 0, 27, 0.95);
-  --color: white;
+// ion-header ion-toolbar {
+//   --background: rgba(179, 0, 27, 0.95);
+//   --color: white;
+// }
+
+// Home page specific styling
+
+ion-header.modern-header {
+  ion-toolbar {
+    --background: #432171 !important;
+    --color: white !important;
+    --border-width: 0;
+    --min-height: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+ion-content {
+  --background: linear-gradient(135deg, #3A1C71 0%, #D76D77 50%, #FFAF7B 100%) !important;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+ion-header.modern-header ion-toolbar .toolbar-background {
+  background: #432171 !important;
+}
+
+.custom-toolbar {
+  --background: #432171 !important;
+  --color: white !important;
+  
+  &::part(background) {
+    background: #432171 !important;
+  }
+}
+
+// Add these styles at the end of your global.scss file
+
+// Target primary toolbar specifically 
+ion-toolbar[color="primary"] {
+  --background: #432171 !important;
+  --color: white !important;
+  
+  &::part(background) {
+    background: #432171 !important;
+  }
+}
+
+// Target the part directly with higher specificity
+ion-toolbar::part(background) {
+  background: #432171 !important;
+}
+
+// Handle iOS/MD mode specific differences
+.ios ion-toolbar, 
+.md ion-toolbar {
+  --background: #432171 !important;
+}
+
+// Target specific class from your home page
+.header-toolbar {
+  --background: #432171 !important;
+  --color: white !important;
+  
+  &::part(background) {
+    background: #432171 !important;
+  }
+}
+
+// Remove primary color styling entirely
+:host(.ion-color-primary) .toolbar-background,
+.ion-color-primary .toolbar-background {
+  background: #432171 !important;
+}
+
+// Additional rules to ensure text is white
+ion-header ion-title, 
+ion-header ion-button,
+.header-content ion-title,
+.app-title {
+  color: white !important;
+  --color: white !important;
+}
+
+// Add this at the end of the file to fix visibility issues
+body, ion-app, ion-content {
+  background-color: #fff !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+// Fix for black screen issues with hydration
+ion-app.ion-page {
+  visibility: visible !important;
+  contain: none !important;
+}
+
+// Ensure all components are visible
+ion-content.ion-page {
+  visibility: visible !important;
+}
+
+// Fix for hydration issues in Ionic
+.ion-page-invisible {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
