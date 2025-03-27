@@ -2,6 +2,7 @@ import { Injectable, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { HolidayProvider } from './holiday.provider';
 
 interface Holiday {
   name: string;
@@ -22,42 +23,42 @@ interface VacationPeriod {
   providedIn: 'root'
 })
 export class HolidayService {
-  // Swiss cantonal holidays data
-  private holidays: Holiday[] = [
-    { "name": "Neujahr", "date": "01-01", "canton": "AG,AR,AI,BL,BS,BE,FR,GE,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TI,TG,UR,VD,VS,ZG,ZH" },
-    { "name": "Berchtoldstag", "date": "02-01", "canton": "AG,BE,JU,TG,VD" },
-    { "name": "Heilige Drei Könige", "date": "06-01", "canton": "GR,SZ,TI,UR" },
-    { "name": "St. Josef", "date": "03-19", "canton": "GR,LU,NW,SZ,TI,UR,VS,ZG" },
-    { "name": "Karfreitag", "date": "04-18", "canton": "AG,AR,AI,BL,BS,BE,FR,GE,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TG,UR,VD,ZG,ZH" },
-    { "name": "Ostersonntag", "date": "04-20", "canton": "all" },
-    { "name": "Ostermontag", "date": "04-21", "canton": "all" },
-    { "name": "Sechseläuten", "date": "04-28", "canton": "ZH" },
-    { "name": "Tag der Arbeit", "date": "05-01", "canton": "BL,BS,FR,JU,NE,SH,SO,TI,TG,ZH,Regional" },
-    { "name": "Auffahrt", "date": "05-29", "canton": "all" },
-    { "name": "Pfingstmontag", "date": "06-09", "canton": "AG,AR,AI,BL,BS,BE,GE,GL,GR,JU,SH,SZ,SO,SG,TI,TG,UR,VD,ZH" },
-    { "name": "Fronleichnam", "date": "06-19", "canton": "AG,AI,FR,GR,JU,LU,NW,OW,SZ,SO,TI,UR,VS,ZG,NE" },
-    { "name": "Peter und Paul", "date": "06-29", "canton": "GR,LU,Regional,TI" },
-    { "name": "Bundesfeier", "date": "08-01", "canton": "all" },
-    { "name": "Mariä Himmelfahrt", "date": "08-15", "canton": "AG,AI,FR,GR,NW,OW,SZ,SO,TI,UR,ZG" },
-    { "name": "Genfer Bettag", "date": "09-11", "canton": "GE" },
-    { "name": "Knabenschiessen", "date": "09-15", "canton": "ZH" },
-    { "name": "Eidgenössischer Dank-, Buss- und Bettag", "date": "09-21", "canton": "AG,AR,AI,BL,BS,BE,FR,GL,GR,JU,LU,NE,NW,OW,SH,SZ,SO,SG,TI,TG,UR,VD,VS,ZG,ZH" },
-    { "name": "Mauritiustag", "date": "09-22", "canton": "AI,LU,Regional,SO" },
-    { "name": "St. Leodegar", "date": "10-02", "canton": "LU" },
-    { "name": "Allerheiligen", "date": "11-01", "canton": "AG,AI,FR,GL,GR,JU,LU,NW,OW,SZ,SO,SG,TI,UR,VS,ZG" },
-    { "name": "Mariä Empfängnis", "date": "12-08", "canton": "AG,AI,FR,GR,LU,NW,OW,SZ,SO,TI,UR,VS,ZG" },
-    { "name": "Weihnachten", "date": "12-25", "canton": "all" },
-    { "name": "Stephanstag", "date": "12-26", "canton": "AG,AR,AI,BL,BS,BE,GL,GR,LU,SZ,SO,SG,TI,TG,UR,ZH" }
-  ];
-  
+  // Will be populated dynamically
+  private holidays: Holiday[] = [];
+  // Cache for holidays by year
+  private holidayCache = new Map<number, Holiday[]>();
 
-  constructor(@Optional() private http: HttpClient) {}
+  constructor(
+    @Optional() private http: HttpClient,
+    private holidayProvider: HolidayProvider
+  ) {
+    // Initialize with current year's holidays
+    this.loadHolidays(new Date().getFullYear());
+  }
 
+  // Load holidays for a specific year
+  private loadHolidays(year: number): void {
+    if (this.holidayCache.has(year)) {
+      this.holidays = this.holidayCache.get(year)!;
+    } else {
+      const yearHolidays = this.holidayProvider.getHolidaysForYear(year);
+      this.holidayCache.set(year, yearHolidays);
+      this.holidays = yearHolidays;
+    }
+  }
+
+  // When checking if a date is a holiday, make sure to load that year's holidays
   isPublicHoliday(date: Date, canton: string = 'ZH'): boolean {
     // First check if it's a weekend - if so, return false regardless
     // This fixes the issue with holidays on weekends
     if (this.isWeekend(date)) {
       return false;
+    }
+    
+    // Make sure the holidays for this year are loaded
+    const year = date.getFullYear();
+    if (!this.holidayCache.has(year)) {
+      this.loadHolidays(year);
     }
     
     // Ensure we're using a Date object
@@ -81,7 +82,13 @@ export class HolidayService {
     return isHoliday;
   }
 
+  // Similarly, update getHolidaysForCanton to ensure we have the right year's data
   getHolidaysForCanton(canton: string, year: number): Observable<any[]> {
+    // Make sure the holidays for this year are loaded
+    if (!this.holidayCache.has(year)) {
+      this.loadHolidays(year);
+    }
+    
     // Filter holidays relevant to the canton
     const cantonHolidays = this.holidays.filter(holiday => 
       holiday.canton === 'all' || 
@@ -100,7 +107,6 @@ export class HolidayService {
     return of(holidaysWithFullDates);
   }
 
-  
   calculateOptimalHolidays(
     canton: string, 
     availableDays: number, 
