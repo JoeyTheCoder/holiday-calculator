@@ -3,7 +3,16 @@ import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { arrowBack, arrowForward } from 'ionicons/icons';
+import { 
+  arrowBack, 
+  arrowForward, 
+  chevronBackOutline, 
+  chevronForwardOutline,
+  ellipsisVertical,
+  caretDown,
+  caretUp,
+  checkmark
+} from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 @Component({
@@ -20,10 +29,17 @@ export class AppComponent {
     private translate: TranslateService
   ) {
     this.initializeApp();
-    // Register Ionicons
+    
+    // Register all icons globally
     addIcons({
       'arrow-back': arrowBack,
-      'arrow-forward': arrowForward
+      'arrow-forward': arrowForward,
+      'chevron-back-outline': chevronBackOutline,
+      'chevron-forward-outline': chevronForwardOutline,
+      'ellipsis-vertical': ellipsisVertical,
+      'caret-down': caretDown,
+      'caret-up': caretUp,
+      'checkmark': checkmark
     });
   }
 

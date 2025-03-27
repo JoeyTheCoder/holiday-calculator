@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
          IonButton, IonIcon, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { arrowBack, arrowForward, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
 interface CalendarDay {
@@ -64,11 +64,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     private holidayService: HolidayService,
     private translateService: TranslateService
   ) {
+    // Explicitly register the icons with proper names
     addIcons({
-      arrowBack,
-      arrowForward,
-      chevronBackOutline,
-      chevronForwardOutline
+      'chevron-back-outline': chevronBackOutline,
+      'chevron-forward-outline': chevronForwardOutline
     });
     
     // Initialize localized month names

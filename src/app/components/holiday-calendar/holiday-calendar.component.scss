@@ -10,15 +10,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 0 8px;
-}
-
-.month-year-display {
-  font-size: 1.4rem;
-  font-weight: 500;
-  color: var(--ion-color-dark);
-  letter-spacing: -0.5px;
+  margin-bottom: 15px;
+  
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    
+    ion-icon {
+      font-size: 24px; /* Make icons larger */
+      color: #333; /* Ensure they have good contrast */
+    }
+  }
+  
+  .month-year-display {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
 }
 
 .weekday-headers {
@@ -249,4 +256,17 @@
 
 .calendar-days {
   animation: fadeIn 0.3s ease-out;
+}
+.calendar-nav-button {
+  --background: transparent !important;
+  --box-shadow: none !important;
+  position: relative;
+  z-index: 2;
+}
+
+.calendar-nav-icon {
+  font-size: 1.5rem;
+  color: var(--ion-color-primary);
+  z-index: 3;
+  position: relative;
 }

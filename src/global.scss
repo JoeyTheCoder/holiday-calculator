@@ -241,21 +241,35 @@ ion-content.ion-page {
 /* Add these styles at the end of your global.scss file */
 
 /* Light theme for ion-alert used by language selector */
-.alert-wrapper.sc-ion-alert-md {
+.alert-wrapper.sc-ion-alert-md,
+.alert-wrapper.sc-ion-alert-ios,
+.custom-alert-select .alert-wrapper {
   --background: white !important;
   background-color: white !important;
   color: #333 !important;
 }
 
-.alert-radio-group.sc-ion-alert-md {
+.alert-radio-group.sc-ion-alert-md,
+.alert-radio-group.sc-ion-alert-ios,
+.custom-alert-select .alert-radio-group {
   background-color: white !important;
 }
 
-.alert-radio-label.sc-ion-alert-md {
+.alert-radio-label.sc-ion-alert-md,
+.alert-radio-label.sc-ion-alert-ios,
+.custom-alert-select .alert-radio-label {
   color: #333 !important;
 }
 
-.alert-button-inner.sc-ion-alert-md {
+.alert-button-group.sc-ion-alert-md,
+.alert-button-group.sc-ion-alert-ios,
+.custom-alert-select .alert-button-group {
+  background-color: white !important;
+}
+
+.alert-button-inner.sc-ion-alert-md,
+.alert-button-inner.sc-ion-alert-ios,
+.custom-alert-select .alert-button-inner {
   color: #333 !important;
 }
 

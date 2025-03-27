@@ -5,17 +5,16 @@
   </ion-card-header>
   <ion-card-content>
     <div class="calendar-container">
-      <!-- Calendar controls -->
+      <!-- Calendar controls with unicode arrow symbols -->
       <div class="calendar-header">
-        <ion-button fill="clear" (click)="previousMonth()">
-          <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-button fill="clear" (click)="previousMonth()" class="calendar-nav-button">
+          <ion-icon name="chevron-back-outline" class="calendar-nav-icon"></ion-icon>
         </ion-button>
         <div class="month-year-display">{{ currentMonthName }} {{ currentYear }}</div>
-        <ion-button fill="clear" (click)="nextMonth()">
-          <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+        <ion-button fill="clear" (click)="nextMonth()" class="calendar-nav-button">
+          <ion-icon name="chevron-forward-outline" class="calendar-nav-icon"></ion-icon>
         </ion-button>
       </div>
-      
       <!-- Weekday headers -->
       <div class="weekday-headers">
         <div *ngFor="let day of weekdays" class="weekday-header">
