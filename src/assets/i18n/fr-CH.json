@@ -82,5 +82,6 @@
     "DEFAULT_LANG": "Langue par défaut",
     "AVAILABLE_LANGS": "Langues disponibles",
     "FORCE_REFRESH": "Forcer l'actualisation"
-  }
+  },
+  "CANTON-LABEL": "Canton"
 } 

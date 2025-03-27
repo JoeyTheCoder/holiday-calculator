@@ -82,5 +82,6 @@
     "DEFAULT_LANG": "Default Lang",
     "AVAILABLE_LANGS": "Available Langs",
     "FORCE_REFRESH": "Force Refresh"
-  }
+  },
+  "CANTON-LABEL": "Canton"
 } 

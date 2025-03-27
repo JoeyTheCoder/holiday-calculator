@@ -4,7 +4,7 @@
   </ion-card-header>
   <ion-card-content>
     <ion-item>
-      <ion-label>Canton</ion-label>
+      <ion-label>{{ 'CANTON-LABEL' | translate }}</ion-label>
       <ion-select 
         [value]="selectedCanton" 
         (ionChange)="onCantonChange($event)"

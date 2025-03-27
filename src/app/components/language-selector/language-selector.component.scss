@@ -1,6 +1,7 @@
 .language-selector-container {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .language-button {
@@ -24,6 +25,15 @@
   align-items: center;
 }
 
+.language-flag {
+  font-size: 20px; /* Make flag emoji larger */
+  margin-right: 4px;
+}
+
+.flag-emoji {
+  font-size: 16px; /* Ensure flag emoji size in dropdown */
+}
+
 .language-name {
   margin-left: 6px;
   font-size: 14px;
@@ -38,4 +48,36 @@
   .language-button {
     min-width: 120px;
   }
+}
+
+/* Properly hide the select element */
+.hidden-select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  
+  /* Only enable pointer events when opened via JS */
+  &.show-select {
+    pointer-events: all;
+  }
+  
+  /* Style the popover for the select */
+  --background: white;
+  --color: #333;
+}
+
+/* Global styles for the ion-popover (these will be applied globally) */
+:root {
+  /* Light theme for popovers */
+  --ion-popover-background: white;
+  --ion-popover-text-color: #333;
+}
+
+/* Target the specific popover used by our component */
+ion-popover.select-popover {
+  --background: white;
+  --color: #333;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 } 

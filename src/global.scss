@@ -237,3 +237,39 @@ ion-content.ion-page {
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+/* Add these styles at the end of your global.scss file */
+
+/* Light theme for ion-alert used by language selector */
+.alert-wrapper.sc-ion-alert-md {
+  --background: white !important;
+  background-color: white !important;
+  color: #333 !important;
+}
+
+.alert-radio-group.sc-ion-alert-md {
+  background-color: white !important;
+}
+
+.alert-radio-label.sc-ion-alert-md {
+  color: #333 !important;
+}
+
+.alert-button-inner.sc-ion-alert-md {
+  color: #333 !important;
+}
+
+/* Selected item styling */
+.alert-radio-button[aria-checked="true"] .alert-radio-label.sc-ion-alert-md {
+  color: #3880ff !important;
+  font-weight: bold;
+}
+
+/* Radio button icon color */
+.alert-radio-icon.sc-ion-alert-md {
+  border-color: #3880ff !important;
+}
+
+.alert-radio-inner.sc-ion-alert-md {
+  background-color: #3880ff !important;
+}

@@ -8,10 +8,11 @@
     #langSelect
     [value]="selectedLanguage" 
     (ionChange)="onLanguageChange($event)"
-    interface="popover"
-    [hidden]="true">
+    interface="alert"
+    [interfaceOptions]="{cssClass: 'custom-alert-select'}"
+    class="hidden-select">
     <ion-select-option *ngFor="let lang of languages" [value]="lang.code">
-      {{ lang.flag }} {{ lang.name }}
+      <span class="flag-emoji">{{ lang.flag }}</span> {{ lang.name }}
     </ion-select-option>
   </ion-select>
 </div> 

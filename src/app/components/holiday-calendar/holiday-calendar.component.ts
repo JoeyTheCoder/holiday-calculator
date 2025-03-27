@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, OnDestroy, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HolidayService } from '../../services/holiday.service';
@@ -6,7 +6,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
          IonButton, IonIcon, IonItem, IonLabel } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { arrowBack, arrowForward } from 'ionicons/icons';
+import { arrowBack, arrowForward, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { Subscription } from 'rxjs';
 
 interface CalendarDay {
   date: Date;
@@ -31,7 +32,7 @@ interface CalendarDay {
     IonButton, IonIcon, IonItem, IonLabel
   ]
 })
-export class HolidayCalendarComponent implements OnInit, OnChanges {
+export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() canton: string = 'ZH';
   @Input() year: number = new Date().getFullYear();
   
@@ -48,16 +49,16 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
   
   calendarDays: CalendarDay[] = [];
   
-  // Rename weekDays to weekdays to match the template
   weekdays: string[] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   
-  monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
+  // Use localized month names instead of translation keys
+  localizedMonthNames: string[] = [];
   
   publicHolidays: any[] = [];
-
-  // Add this property to resolve the error
   currentMonthName: string = '';
+  
+  // Add subscription to track language changes
+  private langChangeSubscription: Subscription = new Subscription();
 
   constructor(
     private holidayService: HolidayService,
@@ -65,27 +66,52 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
   ) {
     addIcons({
       arrowBack,
-      arrowForward
+      arrowForward,
+      chevronBackOutline,
+      chevronForwardOutline
     });
+    
+    // Initialize localized month names
+    this.updateLocalizedMonthNames();
   }
 
   ngOnInit() {
-    // Register the icons
-    addIcons({
-      arrowBack,
-      arrowForward
-    });
-    
-    // Initialize the calendar
+    // Load holidays for the current selection
+    this.loadHolidays();
     this.updateMonthName();
     this.generateCalendarDays();
     
-    // Load holidays for the current canton/year
-    this.loadHolidays();
+    // Subscribe to language changes
+    this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => {
+      this.updateLocalizedMonthNames();
+      this.updateMonthName();
+      this.generateCalendarDays(); // Regenerate calendar to update holiday names
+    });
+  }
+  
+  // Update month names based on current language
+  updateLocalizedMonthNames() {
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    
+    // Create a date and get month names in the current language
+    const monthsArray = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(2000, i, 1);
+      // Convert month name to uppercase
+      const monthName = date.toLocaleString(currentLang, { month: 'long' }).toUpperCase();
+      monthsArray.push(monthName);
+    }
+    
+    this.localizedMonthNames = monthsArray;
+  }
+  
+  ngOnDestroy() {
+    if (this.langChangeSubscription) {
+      this.langChangeSubscription.unsubscribe();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // When canton or year changes, update the calendar
     if (changes['canton'] || changes['year']) {
       this.loadHolidays();
       this.generateCalendarDays();
@@ -93,79 +119,100 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
   }
 
   loadHolidays() {
-    // Load holidays for the current canton and year
-    this.publicHolidays = this.holidayService.getHolidays(this.canton, this.year) || [];
-    
-    // Clear custom and removed holidays when canton/year changes
-    this.customHolidays = [];
-    this.removedHolidays = [];
+    this.publicHolidays = this.holidayService.getHolidays(this.canton, this.year);
   }
 
-  generateCalendarDays(): void {
+  updateMonthName() {
+    this.currentMonthName = this.localizedMonthNames[this.currentMonth];
+  }
+
+  // Get the actual holiday name from the holiday service
+  findHolidayName(date: Date): string {
+    for (const holiday of this.publicHolidays) {
+      const holidayDate = new Date(holiday.date);
+      if (holidayDate.getDate() === date.getDate() && 
+          holidayDate.getMonth() === date.getMonth()) {
+        return holiday.name;
+      }
+    }
+    return '';
+  }
+
+  // Generate calendar days
+  generateCalendarDays() {
     this.calendarDays = [];
     
-    // Create a date for the first day of the current month
-    const firstDay = new Date(this.year, this.currentMonth, 1);
-    const lastDay = new Date(this.year, this.currentMonth + 1, 0);
+    // Get first day of the month
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+    // Get last day of the month
+    const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
     
-    // Get day of week for the first day (0 = Sunday in JS)
-    const firstDayOfWeek = firstDay.getDay();
-    // Convert to European format (0 = Monday, 6 = Sunday)
-    const firstDayEuropeanWeekday = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    // Get the day of the week for the first day (0 = Sunday, 1 = Monday, etc.)
+    // Convert to Monday = 0, Sunday = 6 format
+    let firstDayOfWeek = firstDay.getDay() - 1;
+    if (firstDayOfWeek < 0) firstDayOfWeek = 6; // Sunday becomes 6
     
-    // Include days from the previous month to fill the first week
-    if (firstDayEuropeanWeekday > 0) {
-      const prevMonth = new Date(this.year, this.currentMonth, 0);
-      const daysInPrevMonth = prevMonth.getDate();
-      
-      for (let i = firstDayEuropeanWeekday - 1; i >= 0; i--) {
-        const dayNum = daysInPrevMonth - i;
-        const date = new Date(this.year, this.currentMonth - 1, dayNum);
+    // Add days from previous month to fill first row
+    if (firstDayOfWeek > 0) {
+      const prevMonthLastDay = new Date(this.currentYear, this.currentMonth, 0).getDate();
+      for (let i = prevMonthLastDay - firstDayOfWeek + 1; i <= prevMonthLastDay; i++) {
+        const date = new Date(this.currentYear, this.currentMonth - 1, i);
         this.addCalendarDay(date, false);
       }
     }
     
-    // Add days for the current month
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const date = new Date(this.year, this.currentMonth, day);
+    // Add days for current month
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      const date = new Date(this.currentYear, this.currentMonth, i);
       this.addCalendarDay(date, true);
     }
     
-    // Include days from the next month to complete the grid
-    const totalDaysAdded = this.calendarDays.length;
-    const remainingDays = 42 - totalDaysAdded; // 6 rows of 7 days
-    
-    for (let i = 1; i <= remainingDays; i++) {
-      const date = new Date(this.year, this.currentMonth + 1, i);
-      this.addCalendarDay(date, false);
+    // Add days from next month to complete the grid
+    const gridSize = Math.ceil(this.calendarDays.length / 7) * 7;
+    if (this.calendarDays.length < gridSize) {
+      const daysToAdd = gridSize - this.calendarDays.length;
+      for (let i = 1; i <= daysToAdd; i++) {
+        const date = new Date(this.currentYear, this.currentMonth + 1, i);
+        this.addCalendarDay(date, false);
+      }
     }
   }
   
+  // Add a day to the calendar
   addCalendarDay(date: Date, isCurrentMonth: boolean) {
     const today = new Date();
     const isToday = date.getDate() === today.getDate() && 
                    date.getMonth() === today.getMonth() && 
                    date.getFullYear() === today.getFullYear();
     
-    // Check if the date is a holiday
+    // Determine if the date is a public holiday
     const isHoliday = this.holidayService.isPublicHoliday(date, this.canton);
-    const holidayName = isHoliday ? this.findHolidayName(date) : undefined;
     
-    // Check custom and removed holidays as before
-    const isCustomHoliday = this.customHolidays.some(h => 
-      h.getDate() === date.getDate() && 
-      h.getMonth() === date.getMonth() && 
-      h.getFullYear() === date.getFullYear()
+    // Check if the date is in the removedHolidays array
+    const isRemovedHoliday = this.removedHolidays.some(d => 
+      d.getDate() === date.getDate() && 
+      d.getMonth() === date.getMonth() && 
+      d.getFullYear() === date.getFullYear()
     );
     
-    const isRemovedHoliday = this.removedHolidays.some(h => 
-      h.getDate() === date.getDate() && 
-      h.getMonth() === date.getMonth() && 
-      h.getFullYear() === date.getFullYear()
+    // Check if the date is in the customHolidays array
+    const isCustomHoliday = this.customHolidays.some(d => 
+      d.getDate() === date.getDate() && 
+      d.getMonth() === date.getMonth() && 
+      d.getFullYear() === date.getFullYear()
     );
+    
+    // Get the holiday name if it's a holiday and not removed
+    let holidayName = '';
+    if (isHoliday && !isRemovedHoliday) {
+      holidayName = this.findHolidayName(date);
+    } else if (isCustomHoliday) {
+      // Use the translate service directly to get the current translation
+      holidayName = this.translateService.instant('HOLIDAYS.CUSTOM');
+    }
     
     this.calendarDays.push({
-      date: new Date(date),
+      date,
       dayNumber: date.getDate(),
       isCurrentMonth,
       isToday,
@@ -177,7 +224,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     });
   }
 
-  // Rename prevMonth to previousMonth to match the template
+  // Previous month navigation
   previousMonth() {
     if (this.currentMonth === 0) {
       this.currentMonth = 11;
@@ -189,6 +236,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     this.generateCalendarDays();
   }
 
+  // Next month navigation
   nextMonth() {
     if (this.currentMonth === 11) {
       this.currentMonth = 0;
@@ -200,7 +248,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     this.generateCalendarDays();
   }
   
-  // Rename onDayClick to toggleHoliday to match the template
+  // Toggle holiday status on day click
   toggleHoliday(day: CalendarDay) {
     if (!day.isCurrentMonth) return;
     
@@ -242,6 +290,8 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
       // Add custom holiday
       this.customHolidays.push(clickedDate);
       day.isCustomHoliday = true;
+      // Use the translate service directly to get the current translation
+      day.holidayName = this.translateService.instant('HOLIDAYS.CUSTOM');
       this.holidayAdded.emit(clickedDate);
     }
     
@@ -249,28 +299,8 @@ export class HolidayCalendarComponent implements OnInit, OnChanges {
     this.generateCalendarDays();
   }
 
-  // Find holiday name method to replace getHolidayName
-  findHolidayName(date: Date): string {
-    // If we have holiday data loaded
-    for (const holiday of this.publicHolidays) {
-      const holidayDate = new Date(holiday.date);
-      if (holidayDate.getDate() === date.getDate() && 
-          holidayDate.getMonth() === date.getMonth()) {
-        return holiday.name || 'Holiday';
-      }
-    }
-    return 'Holiday';
-  }
-
   private getDaysOfWeek(): string[] {
     // European format (Monday first)
     return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-  }
-
-  // Add this method to update the month name
-  updateMonthName() {
-    const date = new Date(this.currentYear, this.currentMonth, 1);
-    const locale = this.translateService.currentLang || 'en';
-    this.currentMonthName = date.toLocaleDateString(locale, { month: 'long' }).toUpperCase();
   }
 }
