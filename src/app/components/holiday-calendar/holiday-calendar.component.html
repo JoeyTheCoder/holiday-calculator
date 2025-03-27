@@ -4,64 +4,70 @@
     <ion-card-subtitle>{{ 'HOLIDAYS.SUBTITLE' | translate }}</ion-card-subtitle>
   </ion-card-header>
   <ion-card-content>
-    <div class="calendar-container">
-      <!-- Calendar controls with unicode arrow symbols -->
-      <div class="calendar-header">
-        <ion-button fill="clear" (click)="previousMonth()" class="calendar-nav-button">
-          <ion-icon name="chevron-back-outline" class="calendar-nav-icon"></ion-icon>
-        </ion-button>
-        <div class="month-year-display">{{ currentMonthName }} {{ currentYear }}</div>
-        <ion-button fill="clear" (click)="nextMonth()" class="calendar-nav-button">
-          <ion-icon name="chevron-forward-outline" class="calendar-nav-icon"></ion-icon>
-        </ion-button>
-      </div>
-      <!-- Weekday headers -->
-      <div class="weekday-headers">
-        <div *ngFor="let day of weekdays" class="weekday-header">
-          {{ 'DAYS.' + day | translate }}
+    <div *ngIf="!yearSelected" class="year-selection-required">
+      <p>Please select a year to display the calendar</p>
+    </div>
+    
+    <div *ngIf="yearSelected">
+      <div class="calendar-container">
+        <!-- Calendar controls with unicode arrow symbols -->
+        <div class="calendar-header">
+          <ion-button fill="clear" (click)="previousMonth()" class="calendar-nav-button">
+            <ion-icon name="chevron-back-outline" class="calendar-nav-icon"></ion-icon>
+          </ion-button>
+          <div class="month-year-display">{{ currentMonthName }} {{ currentYear }}</div>
+          <ion-button fill="clear" (click)="nextMonth()" class="calendar-nav-button">
+            <ion-icon name="chevron-forward-outline" class="calendar-nav-icon"></ion-icon>
+          </ion-button>
+        </div>
+        <!-- Weekday headers -->
+        <div class="weekday-headers">
+          <div *ngFor="let day of weekdays" class="weekday-header">
+            {{ 'DAYS.' + day | translate }}
+          </div>
+        </div>
+        
+        <!-- Calendar days -->
+        <div class="calendar-days">
+          <div *ngFor="let day of calendarDays" 
+              class="calendar-day" 
+              [ngClass]="{ 
+                'other-month': !day.isCurrentMonth,
+                'is-today': day.isToday,
+                'is-weekend': day.isWeekend,
+                'is-holiday': day.isHoliday,
+                'custom-holiday': day.isCustomHoliday,
+                'removed-holiday': day.isRemovedHoliday
+              }"
+              (click)="toggleHoliday(day)">
+            <span class="day-number">{{ day.dayNumber }}</span>
+            <span *ngIf="day.holidayName" class="holiday-name">{{ day.holidayName }}</span>
+          </div>
         </div>
       </div>
       
-      <!-- Calendar days -->
-      <div class="calendar-days">
-        <div *ngFor="let day of calendarDays" 
-            class="calendar-day" 
-            [ngClass]="{ 
-              'other-month': !day.isCurrentMonth,
-              'is-today': day.isToday,
-              'is-weekend': day.isWeekend,
-              'is-holiday': day.isHoliday,
-              'custom-holiday': day.isCustomHoliday,
-              'removed-holiday': day.isRemovedHoliday
-            }"
-            (click)="toggleHoliday(day)">
-          <span class="day-number">{{ day.dayNumber }}</span>
-          <span *ngIf="day.holidayName" class="holiday-name">{{ day.holidayName }}</span>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="color-box weekend"></div>
+          <span>{{ 'HOLIDAYS.WEEKEND' | translate }}</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box holiday"></div>
+          <span>{{ 'HOLIDAYS.PUBLIC_HOLIDAY' | translate }}</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box custom-holiday"></div>
+          <span>{{ 'HOLIDAYS.CUSTOM_HOLIDAY' | translate }}</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box removed-holiday"></div>
+          <span>{{ 'HOLIDAYS.REMOVED_HOLIDAY' | translate }}</span>
         </div>
       </div>
+      
+      <ion-item lines="none" class="instructions">
+        <ion-label>{{ 'HOLIDAYS.INSTRUCTIONS' | translate }}</ion-label>
+      </ion-item>
     </div>
-    
-    <div class="legend">
-      <div class="legend-item">
-        <div class="color-box weekend"></div>
-        <span>{{ 'HOLIDAYS.WEEKEND' | translate }}</span>
-      </div>
-      <div class="legend-item">
-        <div class="color-box holiday"></div>
-        <span>{{ 'HOLIDAYS.PUBLIC_HOLIDAY' | translate }}</span>
-      </div>
-      <div class="legend-item">
-        <div class="color-box custom-holiday"></div>
-        <span>{{ 'HOLIDAYS.CUSTOM_HOLIDAY' | translate }}</span>
-      </div>
-      <div class="legend-item">
-        <div class="color-box removed-holiday"></div>
-        <span>{{ 'HOLIDAYS.REMOVED_HOLIDAY' | translate }}</span>
-      </div>
-    </div>
-    
-    <ion-item lines="none" class="instructions">
-      <ion-label>{{ 'HOLIDAYS.INSTRUCTIONS' | translate }}</ion-label>
-    </ion-item>
   </ion-card-content>
 </ion-card>

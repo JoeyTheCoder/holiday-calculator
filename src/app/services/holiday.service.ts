@@ -32,8 +32,14 @@ export class HolidayService {
     @Optional() private http: HttpClient,
     private holidayProvider: HolidayProvider
   ) {
+    const currentYear = new Date().getFullYear();
+    console.log(`[HolidayService] Initializing service with current year: ${currentYear}`);
+    
     // Initialize with current year's holidays
-    this.loadHolidays(new Date().getFullYear());
+    this.loadHolidays(currentYear);
+    
+    // Also pre-load next year's holidays (often needed for planning)
+    this.loadHolidays(currentYear + 1);
   }
 
   // Load holidays for a specific year
@@ -1501,6 +1507,9 @@ export class HolidayService {
     // Get the holidays for this year
     const yearHolidays = this.holidayCache.get(year) || [];
     
+    // Add extra verification for correct year
+    console.log(`[HolidayService] Using cache for year ${year} with ${yearHolidays.length} entries`);
+    
     // Filter for canton-specific holidays and convert to full dates
     const filteredHolidays = yearHolidays
       .filter(holiday => 
@@ -1509,9 +1518,20 @@ export class HolidayService {
       )
       .map(holiday => {
         const [month, day] = holiday.date.split('-').map(Number);
+        
+        // Ensure we're using the correct year by creating a date with the specified year
+        const holidayDate = new Date(year, month - 1, day);
+        
+        // Verify the created date has the correct year
+        if (holidayDate.getFullYear() !== year) {
+          console.warn(`[HolidayService] Date creation issue: Expected year ${year} but got ${holidayDate.getFullYear()} for ${holiday.name}`);
+          // Fix the year if needed - important for December/January edge cases
+          holidayDate.setFullYear(year);
+        }
+        
         return {
           name: holiday.name,
-          date: new Date(year, month - 1, day),
+          date: holidayDate,
           canton: holiday.canton
         };
       });

@@ -138,24 +138,32 @@ export class HolidayProvider {
       // Return a deep copy to prevent accidental mutations
       const holidays = JSON.parse(JSON.stringify(this.holidayData[year]));
       
-      // Ensure all dates have consistent format - convert YYYY-MM-DD to MM-DD for comparison
+      // Log the full list of holidays to verify
+      console.log(`[HolidayProvider] Holidays for ${year} before processing:`, 
+        holidays.map((h: Holiday) => `${h.name} on ${h.date}`));
+      
+      // Ensure all dates have consistent format for the CORRECT YEAR
       holidays.forEach((holiday: Holiday) => {
         // Split the date and reconstruct in consistent format
         if (holiday.date.includes('-')) {
           const dateParts = holiday.date.split('-');
           if (dateParts.length === 3) {
-            // Log the original and new date format for debugging
-            const originalDate = holiday.date;
-            // Keep the original full date format to avoid losing the year info
+            // CRITICAL: Verify that the year in the date matches the requested year
+            const dateYear = parseInt(dateParts[0]);
+            if (dateYear !== year) {
+              console.warn(`[HolidayProvider] WARNING: Holiday ${holiday.name} has year ${dateYear} but was requested for year ${year}`);
+            }
+            
+            // Store the original full date
             holiday.fullDate = holiday.date;
-            // Just MM-DD format for simpler comparison
+            // Use MM-DD format for simpler comparison but keep the YEAR info associated
             holiday.date = `${dateParts[1]}-${dateParts[2]}`;
-            console.log(`[HolidayProvider] Converted date format for ${holiday.name}: ${originalDate} → ${holiday.date}`);
+            console.log(`[HolidayProvider] Formatted date for ${holiday.name}: ${holiday.fullDate} → ${holiday.date}`);
           }
         }
       });
       
-      console.log(`[HolidayProvider] Found ${holidays.length} holidays for year ${year}`);
+      console.log(`[HolidayProvider] Returning ${holidays.length} holidays for year ${year}`);
       return holidays;
     }
     
