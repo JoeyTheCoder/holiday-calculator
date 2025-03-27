@@ -83,5 +83,30 @@
     "AVAILABLE_LANGS": "Langues disponibles",
     "FORCE_REFRESH": "Forcer l'actualisation"
   },
-  "CANTON-LABEL": "Canton"
+  "CANTON-LABEL": "Canton",
+  "HOLIDAY_NAMES": {
+    "Neujahr": "Nouvel An",
+    "Berchtoldstag": "Saint-Berchtold",
+    "Heilige Drei Könige": "Épiphanie",
+    "Karfreitag": "Vendredi Saint",
+    "Ostersonntag": "Pâques",
+    "Ostermontag": "Lundi de Pâques",
+    "Tag der Arbeit": "Fête du Travail",
+    "Auffahrt": "Ascension",
+    "Pfingstmontag": "Lundi de Pentecôte",
+    "Fronleichnam": "Fête-Dieu",
+    "Peter und Paul": "Saint Pierre et Paul",
+    "Bundesfeier": "Fête nationale suisse",
+    "Mariä Himmelfahrt": "Assomption",
+    "Genfer Bettag": "Jeûne genevois",
+    "Knabenschiessen": "Knabenschiessen",
+    "Eidgenössischer Dank-, Buss- und Bettag": "Jeûne fédéral",
+    "Mauritiustag": "Saint Maurice",
+    "St. Leodegar": "Saint Léger",
+    "Allerheiligen": "Toussaint",
+    "Mariä Empfängnis": "Immaculée Conception",
+    "Weihnachten": "Noël",
+    "Stephanstag": "Saint Étienne",
+    "Sechseläuten": "Sechseläuten"
+  }
 } 

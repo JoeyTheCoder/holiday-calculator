@@ -83,5 +83,30 @@
     "AVAILABLE_LANGS": "Lingue disponibili",
     "FORCE_REFRESH": "Forza aggiornamento"
   },
-  "CANTON-LABEL": "Cantone"
+  "CANTON-LABEL": "Cantone",
+  "HOLIDAY_NAMES": {
+    "Neujahr": "Capodanno",
+    "Berchtoldstag": "San Berchtold",
+    "Heilige Drei Könige": "Epifania",
+    "Karfreitag": "Venerdì Santo",
+    "Ostersonntag": "Pasqua",
+    "Ostermontag": "Lunedì dell'Angelo",
+    "Tag der Arbeit": "Festa del Lavoro",
+    "Auffahrt": "Ascensione",
+    "Pfingstmontag": "Lunedì di Pentecoste",
+    "Fronleichnam": "Corpus Domini",
+    "Peter und Paul": "Santi Pietro e Paolo",
+    "Bundesfeier": "Festa nazionale svizzera",
+    "Mariä Himmelfahrt": "Assunzione di Maria",
+    "Genfer Bettag": "Digiuno ginevrino",
+    "Knabenschiessen": "Knabenschiessen",
+    "Eidgenössischer Dank-, Buss- und Bettag": "Digiuno federale",
+    "Mauritiustag": "San Maurizio",
+    "St. Leodegar": "San Leodegario",
+    "Allerheiligen": "Ognissanti",
+    "Mariä Empfängnis": "Immacolata Concezione",
+    "Weihnachten": "Natale",
+    "Stephanstag": "Santo Stefano",
+    "Sechseläuten": "Sechseläuten"
+  }
 } 

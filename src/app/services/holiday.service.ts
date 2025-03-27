@@ -33,7 +33,6 @@ export class HolidayService {
     private holidayProvider: HolidayProvider
   ) {
     const currentYear = new Date().getFullYear();
-    console.log(`[HolidayService] Initializing service with current year: ${currentYear}`);
     
     // Initialize with current year's holidays
     this.loadHolidays(currentYear);
@@ -44,7 +43,6 @@ export class HolidayService {
 
   // Load holidays for a specific year
   private loadHolidays(year: number): void {
-    console.log(`[HolidayService] Loading holidays for year ${year} from provider`);
     
     // Get holidays from the provider
     const holidays = this.holidayProvider.getHolidaysForYear(year);
@@ -55,25 +53,20 @@ export class HolidayService {
     // Set the current working set of holidays
     this.holidays = holidays;
     
-    // THIS IS THE CRITICAL PART - Add debug logs to see what's being loaded
-    console.log(`[HolidayService] Loaded ${holidays.length} holidays for ${year}:`, 
-      holidays.map(h => `${h.name}: ${h.date} (canton: ${h.canton})`));
+
   }
 
   // When checking if a date is a holiday, make sure to load that year's holidays
   isPublicHoliday(date: Date, canton: string = 'ZH'): boolean {
     // First check if it's a weekend
     if (this.isWeekend(date)) {
-      console.log(`[HolidayService] ${date.toISOString().split('T')[0]} is a weekend, not counted as holiday`);
       return false;
     }
     
     // Make sure the holidays for this year are loaded
     const year = date.getFullYear();
-    console.log(`[HolidayService] Checking if ${date.toISOString().split('T')[0]} is a holiday in ${canton}`);
     
     if (!this.holidayCache.has(year)) {
-      console.log(`[HolidayService] Loading holidays for year ${year} during isPublicHoliday check`);
       this.loadHolidays(year);
     }
     
@@ -88,9 +81,6 @@ export class HolidayService {
     const dateStr = `${month}-${day}`;
     const fullDateStr = `${year}-${month}-${day}`;
     
-    // Debug log to see what we're comparing
-    console.log(`[HolidayService] Looking for ${dateStr} or ${fullDateStr} in year ${year} holidays (${yearHolidays.length} entries)`);
-    
     // Find any holiday matching the date and canton
     const isHoliday = yearHolidays.some(holiday => {
       // Check if the holiday is for all cantons or the specified canton
@@ -100,14 +90,9 @@ export class HolidayService {
       // Check for both formats: MM-DD or YYYY-MM-DD
       const dateMatch = (holiday.date === dateStr || holiday.date === fullDateStr) && cantonMatch;
       
-      if (dateMatch) {
-        console.log(`[HolidayService] ✓ MATCH: ${holiday.name} (${holiday.date})`);
-      }
-      
       return dateMatch;
     });
     
-    console.log(`[HolidayService] ${date.toISOString().split('T')[0]} is ${isHoliday ? '' : 'not '}a holiday in ${canton}`);
     return isHoliday;
   }
 
@@ -143,14 +128,9 @@ export class HolidayService {
     customHolidays: Date[] = [],
     removedHolidays: Date[] = []
   ): Observable<any> {
-    console.log('------- VACATION OPTIMIZER INPUT -------');
-    console.log(`Canton: ${canton}, Available Days: ${availableDays}, Year: ${year}`);
-    console.log(`Custom Holidays: ${customHolidays.length}, Removed Holidays: ${removedHolidays.length}`);
-    console.log('Removed Holidays:', removedHolidays.map(d => d.toISOString().split('T')[0])); // Log for debugging
     
     return this.getHolidaysForCanton(canton, year).pipe(
       map(holidays => {
-        console.log(`Holidays for canton ${canton}: `, holidays);
         
         // Convert holidays to Date objects
         let holidayDates = holidays.map(h => {
@@ -170,13 +150,8 @@ export class HolidayService {
           });
         });
         
-        console.log(`Total holidays after customization: ${holidayDates.length}`);
-        console.log('Remaining holidays:', holidayDates.map(d => d.toISOString().split('T')[0])); // Log for debugging
-        
         // Find potential vacation periods
         const periodsToEvaluate = this.findPotentialVacationPeriods(holidayDates, year, availableDays, canton, removedHolidays);
-        
-        console.log(`Number of candidate periods generated: ${periodsToEvaluate.length}`);
         
         // Sort by score instead of efficiency
         periodsToEvaluate.sort((a, b) => (b.score || b.efficiency) - (a.score || a.efficiency));
@@ -225,46 +200,30 @@ export class HolidayService {
           suggestedPeriods: processedPeriods
         };
         
-        console.log('------- VACATION OPTIMIZER OUTPUT -------');
-        console.log(`Total Days Off: ${totalDaysOff}`);
-        console.log(`Days Used: ${daysUsed}`);
-        console.log(`Number of suggested periods: ${processedPeriods.length}`);
-        console.log('Suggested Periods:', JSON.stringify(processedPeriods, null, 2));
-        
         return result;
       })
     );
   }
 
   private findPotentialVacationPeriods(holidays: Date[], year: number, maxDaysToUse: number, canton: string = 'ZH', removedDates: Date[] = []): VacationPeriod[] {
-    console.log('------- FINDING POTENTIAL VACATION PERIODS -------');
-    console.log(`Year: ${year}, Max Days: ${maxDaysToUse}, Canton: ${canton}`);
-    console.log(`Number of holidays: ${holidays.length}`);
-    
     const periods: VacationPeriod[] = [];
     
     // First prioritize full work weeks (Monday-Friday)
     // Increase priority by finding these first
     const fullWeeks = this.findFullWeekPeriods(year, maxDaysToUse, canton, holidays);
-    console.log(`Generated ${fullWeeks.length} full work week periods`);
     periods.push(...fullWeeks);
     
     // Then find bridge periods around holidays
     const bridgePeriods = this.findBridgePeriods(holidays, year, maxDaysToUse, canton);
-    console.log(`Generated ${bridgePeriods.length} bridge periods around holidays`);
     periods.push(...bridgePeriods);
     
     // Add extended weekend periods (connecting multiple weekends)
     const extendedWeekends = this.findExtendedWeekendPeriods(year, maxDaysToUse, canton, holidays);
-    console.log(`Generated ${extendedWeekends.length} extended weekend periods`);
     periods.push(...extendedWeekends);
     
     // Add weekend-to-weekend bridge periods (strategic periods connecting two weekends)
     const weekendBridges = this.findWeekendBridgePeriods(year, maxDaysToUse, canton);
-    console.log(`Generated ${weekendBridges.length} weekend-to-weekend bridge periods`);
     periods.push(...weekendBridges);
-    
-    console.log(`Total number of potential periods: ${periods.length}`);
     
     // Ensure all periods are within the specified year
     const withinYearPeriods = periods.filter(period => {
@@ -273,11 +232,8 @@ export class HolidayService {
       return startDate.getFullYear() === year && endDate.getFullYear() === year;
     });
     
-    console.log(`After filtering by year ${year}: ${withinYearPeriods.length} periods`);
-    
     // Remove duplicates
     const uniquePeriods = this.removeDuplicatePeriods(withinYearPeriods);
-    console.log(`After removing duplicates: ${uniquePeriods.length} periods`);
     
     // After generating all periods, filter out any that include removed dates
     const filteredPeriods = uniquePeriods.filter(period => {
@@ -302,8 +258,6 @@ export class HolidayService {
       
       return true; // Keep this period
     });
-    
-    console.log(`After removing periods with excluded dates: ${filteredPeriods.length} periods`);
     
     return filteredPeriods;
   }
@@ -791,9 +745,6 @@ export class HolidayService {
 
   // Modify the selectOptimalPeriods function to prioritize full weeks with holidays
   private selectOptimalPeriods(candidatePeriods: VacationPeriod[], vacationDaysAvailable: number): VacationPeriod[] {
-    console.log('------- SELECTING OPTIMAL PERIODS -------');
-    console.log(`Candidate periods: ${candidatePeriods.length}, Days available: ${vacationDaysAvailable}`);
-    
     if (candidatePeriods.length === 0) return [];
     
     // Categorize periods by type for better prioritization
@@ -1039,9 +990,6 @@ export class HolidayService {
         }
       }
     }
-    
-    console.log(`Selected ${selectedPeriods.length} optimal periods across ${monthsUsed.size} months`);
-    console.log('Months used:', Array.from(monthsUsed.keys()).map(m => m + 1)); // +1 because months are 0-indexed
     
     return selectedPeriods;
   }
@@ -1310,9 +1258,6 @@ export class HolidayService {
 
   // Find complete work weeks
   private findCompleteWorkWeeks(year: number, maxDaysToUse: number, canton: string): VacationPeriod[] {
-    console.log('------- FINDING FULL WORK WEEKS -------');
-    console.log(`Year: ${year}, Max Days: ${maxDaysToUse}, Canton: ${canton}`);
-    
     const periods: VacationPeriod[] = [];
     
     // Generate full Monday-Friday work weeks for the year
@@ -1380,7 +1325,6 @@ export class HolidayService {
       currentDate.setDate(currentDate.getDate() + 7);
     }
     
-    console.log(`Generated ${periods.length} full work week periods`);
     return periods;
   }
 
@@ -1416,7 +1360,7 @@ export class HolidayService {
         
         if (holiday) {
           result.push({
-            name: holiday.name,
+            name: holiday.name, // Keep the original German name for translation lookup
             date: new Date(currentDate)
           });
         }
@@ -1496,19 +1440,13 @@ export class HolidayService {
    * Get holidays for a specific canton and year
    */
   getHolidays(canton: string, year: number): any[] {
-    console.log(`[HolidayService] Getting holidays for canton ${canton}, year ${year}`);
-    
     // Make sure holidays for this year are loaded
     if (!this.holidayCache.has(year)) {
-      console.log(`[HolidayService] Loading holidays for year ${year} in getHolidays`);
       this.loadHolidays(year);
     }
     
     // Get the holidays for this year
     const yearHolidays = this.holidayCache.get(year) || [];
-    
-    // Add extra verification for correct year
-    console.log(`[HolidayService] Using cache for year ${year} with ${yearHolidays.length} entries`);
     
     // Filter for canton-specific holidays and convert to full dates
     const filteredHolidays = yearHolidays
@@ -1524,7 +1462,6 @@ export class HolidayService {
         
         // Verify the created date has the correct year
         if (holidayDate.getFullYear() !== year) {
-          console.warn(`[HolidayService] Date creation issue: Expected year ${year} but got ${holidayDate.getFullYear()} for ${holiday.name}`);
           // Fix the year if needed - important for December/January edge cases
           holidayDate.setFullYear(year);
         }
@@ -1535,9 +1472,6 @@ export class HolidayService {
           canton: holiday.canton
         };
       });
-    
-    console.log(`[HolidayService] Found ${filteredHolidays.length} holidays for canton ${canton}, year ${year}:`,
-      filteredHolidays.map(h => `${h.name} (${h.date.toISOString().split('T')[0]})`));
     
     return filteredHolidays;
   }

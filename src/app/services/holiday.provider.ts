@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { LoggingService } from './logging.service';
 
 export interface Holiday {
   name: string;
@@ -123,24 +124,16 @@ export class HolidayProvider {
     ]
   };
 
-  constructor() {
-    console.log('[HolidayProvider] Initialized with static holiday data');
-  }
+  constructor(private loggingService: LoggingService) { }
 
   /**
    * Get all holidays for a specific year from static data
    */
   getHolidaysForYear(year: number): Holiday[] {
-    console.log(`[HolidayProvider] Getting holidays for year ${year}`);
-    
     // Check if we have data for this year
     if (this.holidayData[year]) {
       // Return a deep copy to prevent accidental mutations
       const holidays = JSON.parse(JSON.stringify(this.holidayData[year]));
-      
-      // Log the full list of holidays to verify
-      console.log(`[HolidayProvider] Holidays for ${year} before processing:`, 
-        holidays.map((h: Holiday) => `${h.name} on ${h.date}`));
       
       // Ensure all dates have consistent format for the CORRECT YEAR
       holidays.forEach((holiday: Holiday) => {
@@ -148,34 +141,25 @@ export class HolidayProvider {
         if (holiday.date.includes('-')) {
           const dateParts = holiday.date.split('-');
           if (dateParts.length === 3) {
-            // CRITICAL: Verify that the year in the date matches the requested year
-            const dateYear = parseInt(dateParts[0]);
-            if (dateYear !== year) {
-              console.warn(`[HolidayProvider] WARNING: Holiday ${holiday.name} has year ${dateYear} but was requested for year ${year}`);
-            }
-            
             // Store the original full date
             holiday.fullDate = holiday.date;
             // Use MM-DD format for simpler comparison but keep the YEAR info associated
             holiday.date = `${dateParts[1]}-${dateParts[2]}`;
-            console.log(`[HolidayProvider] Formatted date for ${holiday.name}: ${holiday.fullDate} → ${holiday.date}`);
           }
         }
       });
       
-      console.log(`[HolidayProvider] Returning ${holidays.length} holidays for year ${year}`);
       return holidays;
     }
     
-    console.warn(`[HolidayProvider] No holiday data found for year ${year}, returning empty array`);
-    return [];
+    // If no data found, generate fallback data for common holidays
+    return this.getFallbackHolidays(year);
   }
 
   /**
    * Add new holidays for a specific year
    */
   addHolidaysForYear(year: number, holidays: Holiday[]): void {
-    console.log(`[HolidayProvider] Adding ${holidays.length} holidays for year ${year}`);
     this.holidayData[year] = holidays;
   }
 
@@ -193,7 +177,6 @@ export class HolidayProvider {
           const year = parseInt(yearStr);
           if (!isNaN(year) && Array.isArray(data[year])) {
             this.holidayData[year] = data[year];
-            console.log(`[HolidayProvider] Imported ${data[year].length} holidays for year ${year}`);
           }
         });
         return true;
@@ -201,8 +184,30 @@ export class HolidayProvider {
       
       return false;
     } catch (error) {
-      console.error('[HolidayProvider] Error importing holiday data:', error);
       return false;
     }
+  }
+
+  /**
+   * Check if holidays exist for a specific year
+   */
+  hasHolidaysForYear(year: number): boolean {
+    return !!this.holidayData[year] && this.holidayData[year].length > 0;
+  }
+
+  /**
+   * Get fallback holidays for a year when no data exists
+   */
+  getFallbackHolidays(year: number): Holiday[] {
+    // Create basic holidays that occur on the same date every year
+    return [
+      { name: "Neujahr", date: "01-01", canton: "all", fullDate: `${year}-01-01` },
+      { name: "Berchtoldstag", date: "01-02", canton: "AG,BE,JU,TG,VD", fullDate: `${year}-01-02` },
+      { name: "Heilige Drei Könige", date: "01-06", canton: "GR,SZ,TI,UR", fullDate: `${year}-01-06` },
+      { name: "Tag der Arbeit", date: "05-01", canton: "BL,BS,FR,JU,NE,SH,SO,TI,TG,ZH,Regional", fullDate: `${year}-05-01` },
+      { name: "Bundesfeier", date: "08-01", canton: "all", fullDate: `${year}-08-01` },
+      { name: "Weihnachten", date: "12-25", canton: "all", fullDate: `${year}-12-25` },
+      { name: "Stephanstag", date: "12-26", canton: "AG,AR,AI,BL,BS,BE,GL,GR,LU,SZ,SO,SG,TI,TG,UR,ZH", fullDate: `${year}-12-26` }
+    ];
   }
 }

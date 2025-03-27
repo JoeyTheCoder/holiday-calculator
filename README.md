@@ -1,41 +1,103 @@
-# Holiday Calculator
+# Swiss Holiday Calendar
 
-A smart application to optimize your holiday planning in Switzerland. This tool helps you maximize your time off by strategically planning your vacation days around public holidays.
+A responsive web application that displays Swiss public holidays by canton and year.
 
 ## Features
 
-- **Canton Selection**: Choose your canton in Switzerland via dropdown
-- **Interactive Calendar**: View and manage holidays with an intuitive monthly calendar interface
-- **Automatic Holiday Integration**: Public holidays for your selected canton are automatically displayed
-- **Vacation Optimization**: Calculate the optimal days to take off to maximize your time away from work
-- **Personal Holiday Tracking**: Input and track your available vacation days
+- View public holidays for all Swiss cantons
+- Filter holidays by canton
+- Navigate between different years
+- Responsive design for mobile and desktop
+- Multi-language support (German, French, Italian, English)
 
-## Technical Information
+## Installation
 
-This project is built using:
-- **Frontend**: Ionic with Angular
-- **Backend**: (TBD - recommendations welcome)
+### Prerequisites
 
-## Development Status
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-This is currently under active development. First version will be focusing on Switzerland with plans to expand to other countries in the future.
+### Setup
 
-## Contact
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/swiss-holiday-calendar.git
+   cd swiss-holiday-calendar
+   ```
 
-Created by JoeyTheCoder - feel free to reach out with questions or suggestions!
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
----
+3. Start the development server:
+   ```bash
+   ionic serve
+   ```
 
-To-Do:
+4. Build for production:
+   ```bash
+   ionic build --prod
+   ```
 
-- add weekdays in visualisation
+## Mobile Deployment
 
-- check algorithm for schibete
+### Android
 
-- add email button for invitation of single blocks
+- ionic cap add android
+- ionic build --prod
+- ionic cap copy android
+- ionic cap sync android
+- ionic cap open android
 
-Enjoy planning your perfect holiday!
+### iOS
 
-Cheers JoeyTheCoder
+- ionic cap add ios
+- ionic build --prod
+- ionic cap copy ios
+- ionic cap sync ios
+- ionic cap open ios
 
+## Configuration Options
 
+### Environment Variables
+
+Edit the environment files in `src/environments/` to configure:
+
+- `production`: Set to `true` for production builds (disables console logs)
+- `version`: Application version number
+
+### Canton Codes
+
+The application uses the following canton codes:
+
+- AG: Aargau
+- AR: Appenzell Ausserrhoden
+- AI: Appenzell Innerrhoden
+- BL: Basel-Landschaft
+- BS: Basel-Stadt
+- BE: Bern
+- FR: Fribourg
+- GE: Geneva
+- GL: Glarus
+- GR: Graubünden
+- JU: Jura
+- LU: Lucerne
+- NE: Neuchâtel
+- NW: Nidwalden
+- OW: Obwalden
+- SH: Schaffhausen
+- SZ: Schwyz
+- SO: Solothurn
+- SG: St. Gallen
+- TI: Ticino
+- TG: Thurgau
+- UR: Uri
+- VD: Vaud
+- VS: Valais
+- ZG: Zug
+- ZH: Zurich
+
+## License
+
+MIT License

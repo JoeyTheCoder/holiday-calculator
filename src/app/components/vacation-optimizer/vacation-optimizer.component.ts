@@ -198,9 +198,15 @@ export class VacationOptimizerComponent implements OnInit, OnChanges, OnDestroy 
     // Check if it contains holidays
     const holidays = this.holidayService.getHolidaysInRange(start, end, this.optimizationResult.canton);
     if (holidays && holidays.length > 0) {
+      // Translate each holiday name
+      const translatedNames = holidays.map((h: any) => {
+        const translatedName = this.translateService.instant(`HOLIDAY_NAMES.${h.name}`);
+        return translatedName !== `HOLIDAY_NAMES.${h.name}` ? translatedName : h.name;
+      });
+      
       return this.translateService.instant('VACATION.INCLUDES_HOLIDAYS', {
         count: holidays.length,
-        names: holidays.map((h: any) => h.name).join(', ')
+        names: translatedNames.join(', ')
       });
     }
     

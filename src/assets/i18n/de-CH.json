@@ -83,5 +83,30 @@
     "AVAILABLE_LANGS": "Verfügbare Sprachen",
     "FORCE_REFRESH": "Aktualisierung erzwingen"
   },
-  "CANTON-LABEL": "Kanton"
+  "CANTON-LABEL": "Kanton",
+  "HOLIDAY_NAMES": {
+    "Neujahr": "Neujahr",
+    "Berchtoldstag": "Berchtoldstag",
+    "Heilige Drei Könige": "Heilige Drei Könige",
+    "Karfreitag": "Karfreitag",
+    "Ostersonntag": "Ostersonntag",
+    "Ostermontag": "Ostermontag",
+    "Tag der Arbeit": "Tag der Arbeit",
+    "Auffahrt": "Auffahrt",
+    "Pfingstmontag": "Pfingstmontag",
+    "Fronleichnam": "Fronleichnam",
+    "Peter und Paul": "Peter und Paul",
+    "Bundesfeier": "Bundesfeier",
+    "Mariä Himmelfahrt": "Mariä Himmelfahrt",
+    "Genfer Bettag": "Genfer Bettag",
+    "Knabenschiessen": "Knabenschiessen",
+    "Eidgenössischer Dank-, Buss- und Bettag": "Eidgenössischer Dank-, Buss- und Bettag",
+    "Mauritiustag": "Mauritiustag",
+    "St. Leodegar": "St. Leodegar",
+    "Allerheiligen": "Allerheiligen",
+    "Mariä Empfängnis": "Mariä Empfängnis",
+    "Weihnachten": "Weihnachten",
+    "Stephanstag": "Stephanstag",
+    "Sechseläuten": "Sechseläuten"
+  }
 } 

@@ -8,6 +8,8 @@ import { IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
+import { AnalyticsService } from '../../services/analytics.service';
+import { LoggingService } from '../../services/logging.service';
 
 interface CalendarDay {
   date: Date;
@@ -65,7 +67,9 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private holidayService: HolidayService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private analyticsService: AnalyticsService,
+    private logger: LoggingService
   ) {
     // Explicitly register the icons with proper names
     addIcons({
@@ -78,17 +82,11 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    console.log(`[Calendar] Initialization info:`);
-    console.log(`  - System year: ${new Date().getFullYear()}`); 
-    console.log(`  - Input year: ${this.year}`);
-    
     // Don't set a default year - leave it null until explicitly set
     this.currentYear = this.year || new Date().getFullYear();
-    console.log(`  - Current component year: ${this.currentYear}`);
     
     // Mark if we have a selected year or not
     this.yearSelected = this.year !== null;
-    console.log(`[Calendar] Year selected: ${this.yearSelected}`);
     
     // Initialize month names
     this.initMonthNames();
@@ -134,13 +132,9 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(`[Calendar] Input changes detected:`, 
-      Object.keys(changes).map(key => `${key}: ${changes[key].previousValue} → ${changes[key].currentValue}`));
-    
     // If the year input changes, update our internal state
     if (changes['year']) {
       const newYear = changes['year'].currentValue;
-      console.log(`[Calendar] Year input changed to ${newYear}`);
       
       // Explicitly set both year values for consistency
       this.year = newYear;
@@ -152,12 +146,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
       // Update the UI
       this.updateMonthName();
       this.generateCalendarDays();
-      console.log(`[Calendar] Calendar updated for new year: ${this.currentYear}`);
     }
     
     // If the canton changes, reload holidays and regenerate the calendar
     if (changes['canton']) {
-      console.log(`[Calendar] Canton changed to ${this.canton}`);
       // Reload holidays for the current year and canton
       this.loadHolidays(this.currentYear);
       // Regenerate the calendar
@@ -167,10 +159,8 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Add a method to explicitly load holidays for a year
   private loadHolidays(year: number) {
-    console.log(`[Calendar] Pre-loading holidays for canton ${this.canton}, year ${year}`);
     // Force the holiday service to load this year's holidays
     this.publicHolidays = this.holidayService.getHolidays(this.canton, year);
-    console.log(`[Calendar] Loaded ${this.publicHolidays.length} public holidays for year ${year}`);
   }
 
   updateMonthName() {
@@ -183,14 +173,8 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     const checkDate = new Date(date.getTime());
     const year = checkDate.getFullYear();
     
-    console.log(`[Calendar] Finding holiday name for ${checkDate.toISOString().split('T')[0]} (year: ${year})`);
-    
     // Fix parameter order: canton first, then year
     const holidays = this.holidayService.getHolidays(this.canton, year);
-    
-    // Log all holidays found to debug
-    console.log(`[Calendar] Found ${holidays.length} holidays for ${year}:`, 
-      holidays.map(h => `${h.name} on ${h.date.toISOString().split('T')[0]}`));
     
     // Find matching holiday - strictly compare dates including year
     const holiday = holidays.find(h => 
@@ -200,8 +184,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     );
     
     if (holiday) {
-      console.log(`[Calendar] ✓ Found holiday name: ${holiday.name} for ${checkDate.toISOString().split('T')[0]}`);
-      return holiday.name;
+      // Translate the holiday name using the translation key
+      const translatedName = this.translateService.instant(`HOLIDAY_NAMES.${holiday.name}`);
+      // If no translation is found, fall back to the original name
+      return translatedName !== `HOLIDAY_NAMES.${holiday.name}` ? translatedName : holiday.name;
     }
     
     return undefined;
@@ -210,21 +196,16 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   // Generate calendar days
   generateCalendarDays() {
     if (!this.yearSelected) {
-      console.log(`[Calendar] Calendar generation skipped - no year selected`);
       this.calendarDays = [];
       return;
     }
     
-    console.log(`[Calendar] Generating calendar days for ${this.currentMonthName} ${this.currentYear}`);
     this.calendarDays = [];
     
     // Get first day of the month
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
     // Get last day of the month
     const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
-    
-    // Debug log the date range
-    console.log(`[Calendar] Calendar range: ${firstDay.toISOString().split('T')[0]} to ${lastDay.toISOString().split('T')[0]}`);
     
     // Get the day of the week of the first day (0 = Sunday, 1 = Monday, etc.)
     let firstDayOfWeek = firstDay.getDay();
@@ -270,22 +251,10 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     // Create a proper copy of the date to avoid reference issues
     const checkDate = new Date(date.getTime());
     
-    // Log the exact date being checked
-    console.log(`[Calendar] Checking date: ${checkDate.toISOString().split('T')[0]} (month: ${this.currentMonth+1}, year: ${this.currentYear})`);
-    
     const today = new Date();
     const isToday = date.getDate() === today.getDate() && 
                   date.getMonth() === today.getMonth() && 
                   date.getFullYear() === today.getFullYear();
-    
-    // Ensure we're using the calendar's current year when checking for holidays
-    if (isCurrentMonth) {
-      // For current month days, we can check holiday status directly
-      console.log(`[Calendar] Checking holiday status for current month day: ${checkDate.toISOString().split('T')[0]}`);
-    } else {
-      // For previous/next month days, log this case for debugging
-      console.log(`[Calendar] Day from adjacent month: ${checkDate.toISOString().split('T')[0]}`);
-    }
     
     // Check if the date is a weekend
     const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -306,10 +275,6 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     
     // Check if it's a public holiday - USE THE CORRECT YEAR from the date object
     const isHoliday = !isRemovedHoliday && this.holidayService.isPublicHoliday(checkDate, this.canton);
-    
-    if (isHoliday) {
-      console.log(`[Calendar] ✓ ${checkDate.toISOString().split('T')[0]} is a holiday in ${this.canton}`);
-    }
     
     // Get holiday name for tooltips
     let holidayName: string | undefined;
@@ -334,12 +299,9 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Previous month navigation
   prevMonth() {
-    console.log(`[Calendar] Navigating from month ${this.currentMonth} year ${this.currentYear} to previous month`);
-    
     if (this.currentMonth === 0) {
       this.currentMonth = 11;
       this.currentYear--;
-      console.log(`[Calendar] Year changed to ${this.currentYear} (previous year)`);
     } else {
       this.currentMonth--;
     }
@@ -350,12 +312,9 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Next month navigation
   nextMonth() {
-    console.log(`[Calendar] Navigating from month ${this.currentMonth} year ${this.currentYear} to next month`);
-    
     if (this.currentMonth === 11) {
       this.currentMonth = 0;
       this.currentYear++;
-      console.log(`[Calendar] Year changed to ${this.currentYear} (next year)`);
     } else {
       this.currentMonth++;
     }
@@ -422,12 +381,19 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Add a public method to set the year explicitly
   setYear(year: number) {
-    console.log(`[Calendar] Explicitly setting year to ${year} (was ${this.currentYear})`);
+    this.logger.log('Calendar', `Setting year to ${year}`);
     this.currentYear = year;
-    this.year = year; // Make sure both are updated
+    this.year = year;
     this.yearSelected = true;
     this.updateMonthName();
     this.generateCalendarDays();
+    
+    // Track year selection
+    this.analyticsService.trackEvent({
+      category: 'Calendar',
+      action: 'YearChanged',
+      label: year.toString()
+    });
     
     // Pre-load holidays for this year
     this.loadHolidays(year);
@@ -435,7 +401,6 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Also add a reset method that returns to the input year
   resetToInputYear() {
-    console.log(`[Calendar] Resetting to input year ${this.year}`);
     this.currentYear = this.year || new Date().getFullYear();
     this.currentMonth = new Date().getMonth(); // Back to current month
     this.updateMonthName();
@@ -444,14 +409,12 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
 
   // Fix the missing initMonthNames method by adding it
   private initMonthNames() {
-    console.log('[Calendar] Initializing month names');
     this.updateLocalizedMonthNames();
   }
 
   // Alternatively, we can rename our prevMonth back to match the template
   // Or we need to update the template to use prevMonth instead of previousMonth
   previousMonth() {
-    console.log('[Calendar] previousMonth called, delegating to prevMonth');
     this.prevMonth();
   }
 

@@ -83,5 +83,30 @@
     "AVAILABLE_LANGS": "Available Langs",
     "FORCE_REFRESH": "Force Refresh"
   },
-  "CANTON-LABEL": "Canton"
+  "CANTON-LABEL": "Canton",
+  "HOLIDAY_NAMES": {
+    "Neujahr": "New Year's Day",
+    "Berchtoldstag": "Berchtold's Day",
+    "Heilige Drei Könige": "Epiphany",
+    "Karfreitag": "Good Friday",
+    "Ostersonntag": "Easter Sunday",
+    "Ostermontag": "Easter Monday",
+    "Tag der Arbeit": "Labour Day",
+    "Auffahrt": "Ascension Day",
+    "Pfingstmontag": "Whit Monday",
+    "Fronleichnam": "Corpus Christi",
+    "Peter und Paul": "Saints Peter and Paul",
+    "Bundesfeier": "Swiss National Day",
+    "Mariä Himmelfahrt": "Assumption of Mary",
+    "Genfer Bettag": "Geneva Fast",
+    "Knabenschiessen": "Boys' Shooting Competition",
+    "Eidgenössischer Dank-, Buss- und Bettag": "Federal Day of Thanksgiving",
+    "Mauritiustag": "Saint Maurice's Day",
+    "St. Leodegar": "Saint Leodegar's Day",
+    "Allerheiligen": "All Saints' Day",
+    "Mariä Empfängnis": "Immaculate Conception",
+    "Weihnachten": "Christmas Day",
+    "Stephanstag": "St. Stephen's Day",
+    "Sechseläuten": "Sechseläuten"
+  }
 } 
