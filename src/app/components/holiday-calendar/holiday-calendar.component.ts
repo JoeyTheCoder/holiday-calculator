@@ -75,7 +75,12 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    // Load holidays for the current selection
+    console.log(`[HolidayCalendar] Initializing calendar with year: ${this.year}, canton: ${this.canton}`);
+    
+    // Ensure currentYear is set from the input
+    this.currentYear = this.year;
+    
+    // Generate calendar with the proper year
     this.loadHolidays();
     this.updateMonthName();
     this.generateCalendarDays();
@@ -84,7 +89,7 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
     this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => {
       this.updateLocalizedMonthNames();
       this.updateMonthName();
-      this.generateCalendarDays(); // Regenerate calendar to update holiday names
+      this.generateCalendarDays();
     });
   }
   
@@ -111,40 +116,75 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('[HolidayCalendar] ngOnChanges fired with:', changes);
+    
+    // If year changed, update currentYear too
+    if (changes['year']) {
+      console.log(`[HolidayCalendar] Year input changed from ${changes['year'].previousValue} to ${changes['year'].currentValue}`);
+      this.currentYear = this.year;
+    }
+    
+    // If canton changed, reload holidays for the new canton
+    if (changes['canton']) {
+      console.log(`[HolidayCalendar] Canton changed to ${this.canton}`);
+    }
+    
+    // If either input changed, reload data and regenerate calendar
     if (changes['canton'] || changes['year']) {
       this.loadHolidays();
+      this.updateMonthName();
       this.generateCalendarDays();
     }
   }
 
   loadHolidays() {
-    this.publicHolidays = this.holidayService.getHolidays(this.canton, this.year);
+    console.log(`[HolidayCalendar] Loading holidays for canton ${this.canton}, year ${this.currentYear}`);
+    this.publicHolidays = this.holidayService.getHolidays(this.canton, this.currentYear);
+    console.log(`[HolidayCalendar] Loaded ${this.publicHolidays.length} public holidays for ${this.currentYear}:`, 
+      this.publicHolidays.map(h => `${h.name} (${h.date.toISOString().split('T')[0]})`));
   }
 
   updateMonthName() {
     this.currentMonthName = this.localizedMonthNames[this.currentMonth];
   }
 
-  // Get the actual holiday name from the holiday service
-  findHolidayName(date: Date): string {
-    for (const holiday of this.publicHolidays) {
-      const holidayDate = new Date(holiday.date);
-      if (holidayDate.getDate() === date.getDate() && 
-          holidayDate.getMonth() === date.getMonth()) {
-        return holiday.name;
-      }
+  // Find holiday name from the holiday service more accurately
+  findHolidayName(date: Date): string | undefined {
+    const checkDate = new Date(date.getTime());
+    const year = checkDate.getFullYear();
+    
+    console.log(`[Calendar] Finding holiday name for ${checkDate.toISOString().split('T')[0]} (year: ${year})`);
+    
+    // Fix parameter order: canton first, then year
+    const holidays = this.holidayService.getHolidays(this.canton, year);
+    
+    // Find matching holiday
+    const holiday = holidays.find(h => 
+      h.date.getDate() === checkDate.getDate() && 
+      h.date.getMonth() === checkDate.getMonth() &&
+      h.date.getFullYear() === checkDate.getFullYear()
+    );
+    
+    if (holiday) {
+      console.log(`[Calendar] Found holiday name: ${holiday.name}`);
+      return holiday.name;
     }
-    return '';
+    
+    return undefined;
   }
 
   // Generate calendar days
   generateCalendarDays() {
+    console.log(`[HolidayCalendar] Generating calendar days for ${this.currentMonthName} ${this.currentYear}`);
     this.calendarDays = [];
     
     // Get first day of the month
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
     // Get last day of the month
     const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+    
+    // Log the date range we're generating
+    console.log(`[HolidayCalendar] Calendar range: ${firstDay.toISOString()} to ${lastDay.toISOString()}`);
     
     // Get the day of the week for the first day (0 = Sunday, 1 = Monday, etc.)
     // Convert to Monday = 0, Sunday = 6 format
@@ -179,13 +219,29 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
   
   // Add a day to the calendar
   addCalendarDay(date: Date, isCurrentMonth: boolean) {
+    // Create a proper copy of the date to avoid reference issues
+    const checkDate = new Date(date.getTime());
+    
+    // Log the exact date being checked with its full year
+    console.log(`[Calendar] Checking day: ${checkDate.toISOString().split('T')[0]}`);
+    
     const today = new Date();
     const isToday = date.getDate() === today.getDate() && 
                    date.getMonth() === today.getMonth() && 
                    date.getFullYear() === today.getFullYear();
     
-    // Determine if the date is a public holiday
-    const isHoliday = this.holidayService.isPublicHoliday(date, this.canton);
+    // Check for weekends
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    
+    // Check for holidays - ENSURE correct year is being passed
+    const isHoliday = this.holidayService.isPublicHoliday(checkDate, this.canton);
+    
+    if (isHoliday) {
+      console.log(`[Calendar] ✓ ${checkDate.toISOString().split('T')[0]} is a holiday in ${this.canton}`);
+    }
+    
+    // Get holiday name if it's a holiday
+    let holidayName = isHoliday ? this.findHolidayName(checkDate) : undefined;
     
     // Check if the date is in the removedHolidays array
     const isRemovedHoliday = this.removedHolidays.some(d => 
@@ -201,21 +257,12 @@ export class HolidayCalendarComponent implements OnInit, OnChanges, OnDestroy {
       d.getFullYear() === date.getFullYear()
     );
     
-    // Get the holiday name if it's a holiday and not removed
-    let holidayName = '';
-    if (isHoliday && !isRemovedHoliday) {
-      holidayName = this.findHolidayName(date);
-    } else if (isCustomHoliday) {
-      // Use the translate service directly to get the current translation
-      holidayName = this.translateService.instant('HOLIDAYS.CUSTOM');
-    }
-    
     this.calendarDays.push({
       date,
       dayNumber: date.getDate(),
       isCurrentMonth,
       isToday,
-      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      isWeekend,
       isHoliday: isHoliday && !isRemovedHoliday, // Only count as holiday if not removed
       isCustomHoliday,
       isRemovedHoliday,

@@ -38,47 +38,70 @@ export class HolidayService {
 
   // Load holidays for a specific year
   private loadHolidays(year: number): void {
-    if (this.holidayCache.has(year)) {
-      this.holidays = this.holidayCache.get(year)!;
-    } else {
-      const yearHolidays = this.holidayProvider.getHolidaysForYear(year);
-      this.holidayCache.set(year, yearHolidays);
-      this.holidays = yearHolidays;
-    }
+    console.log(`[HolidayService] Loading holidays for year ${year} from provider`);
+    
+    // Get holidays from the provider
+    const holidays = this.holidayProvider.getHolidaysForYear(year);
+    
+    // Store them in cache
+    this.holidayCache.set(year, holidays);
+    
+    // Set the current working set of holidays
+    this.holidays = holidays;
+    
+    // THIS IS THE CRITICAL PART - Add debug logs to see what's being loaded
+    console.log(`[HolidayService] Loaded ${holidays.length} holidays for ${year}:`, 
+      holidays.map(h => `${h.name}: ${h.date} (canton: ${h.canton})`));
   }
 
   // When checking if a date is a holiday, make sure to load that year's holidays
   isPublicHoliday(date: Date, canton: string = 'ZH'): boolean {
-    // First check if it's a weekend - if so, return false regardless
-    // This fixes the issue with holidays on weekends
+    // First check if it's a weekend
     if (this.isWeekend(date)) {
+      console.log(`[HolidayService] ${date.toISOString().split('T')[0]} is a weekend, not counted as holiday`);
       return false;
     }
     
     // Make sure the holidays for this year are loaded
     const year = date.getFullYear();
+    console.log(`[HolidayService] Checking if ${date.toISOString().split('T')[0]} is a holiday in ${canton}`);
+    
     if (!this.holidayCache.has(year)) {
+      console.log(`[HolidayService] Loading holidays for year ${year} during isPublicHoliday check`);
       this.loadHolidays(year);
     }
     
-    // Ensure we're using a Date object
-    const checkDate = new Date(date);
+    // IMPORTANT: Use the cached holidays for the SPECIFIC YEAR, not the general holidays array
+    const yearHolidays = this.holidayCache.get(year) || [];
     
     // Format month and day for comparison
-    const month = String(checkDate.getMonth() + 1).padStart(2, '0');
-    const day = String(checkDate.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    // Check if the formatted date directly matches or if we have a full date match
     const dateStr = `${month}-${day}`;
+    const fullDateStr = `${year}-${month}-${day}`;
+    
+    // Debug log to see what we're comparing
+    console.log(`[HolidayService] Looking for ${dateStr} or ${fullDateStr} in year ${year} holidays (${yearHolidays.length} entries)`);
     
     // Find any holiday matching the date and canton
-    const isHoliday = this.holidays.some(holiday => {
+    const isHoliday = yearHolidays.some(holiday => {
       // Check if the holiday is for all cantons or the specified canton
       const cantonMatch = holiday.canton === 'all' || 
                         holiday.canton.split(',').includes(canton);
       
-      // Match the date string
-      return holiday.date === dateStr && cantonMatch;
+      // Check for both formats: MM-DD or YYYY-MM-DD
+      const dateMatch = (holiday.date === dateStr || holiday.date === fullDateStr) && cantonMatch;
+      
+      if (dateMatch) {
+        console.log(`[HolidayService] ✓ MATCH: ${holiday.name} (${holiday.date})`);
+      }
+      
+      return dateMatch;
     });
     
+    console.log(`[HolidayService] ${date.toISOString().split('T')[0]} is ${isHoliday ? '' : 'not '}a holiday in ${canton}`);
     return isHoliday;
   }
 
@@ -1463,30 +1486,39 @@ export class HolidayService {
            date1.getFullYear() === date2.getFullYear();
   }
 
-  // Add this method if it doesn't exist
+  /**
+   * Get holidays for a specific canton and year
+   */
   getHolidays(canton: string, year: number): any[] {
-    // This is a fallback implementation
-    const holidays = [];
-    // Create a date for each month to check for holidays
-    for (let month = 0; month < 12; month++) {
-      for (let day = 1; day <= 31; day++) {
-        try {
-          const date = new Date(year, month, day);
-          // Skip invalid dates
-          if (date.getMonth() !== month) continue;
-          
-          if (this.isPublicHoliday(date, canton)) {
-            holidays.push({
-              date: date,
-              name: 'Holiday', // Placeholder name
-              isPublicHoliday: true
-            });
-          }
-        } catch (e) {
-          // Skip errors for invalid dates
-        }
-      }
+    console.log(`[HolidayService] Getting holidays for canton ${canton}, year ${year}`);
+    
+    // Make sure holidays for this year are loaded
+    if (!this.holidayCache.has(year)) {
+      console.log(`[HolidayService] Loading holidays for year ${year} in getHolidays`);
+      this.loadHolidays(year);
     }
-    return holidays;
+    
+    // Get the holidays for this year
+    const yearHolidays = this.holidayCache.get(year) || [];
+    
+    // Filter for canton-specific holidays and convert to full dates
+    const filteredHolidays = yearHolidays
+      .filter(holiday => 
+        holiday.canton === 'all' || 
+        holiday.canton.split(',').includes(canton)
+      )
+      .map(holiday => {
+        const [month, day] = holiday.date.split('-').map(Number);
+        return {
+          name: holiday.name,
+          date: new Date(year, month - 1, day),
+          canton: holiday.canton
+        };
+      });
+    
+    console.log(`[HolidayService] Found ${filteredHolidays.length} holidays for canton ${canton}, year ${year}:`,
+      filteredHolidays.map(h => `${h.name} (${h.date.toISOString().split('T')[0]})`));
+    
+    return filteredHolidays;
   }
 } 
