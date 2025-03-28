@@ -20,7 +20,13 @@
     "YOUR_VACATION": "Ihre Ferientage",
     "EXTENDED_PERIOD": "Erweiterte Periode",
     "AVAILABLE_DAYS": "Verfügbare Ferientage",
-    "CALCULATE_PLAN": "Optimalen Ferienplan berechnen"
+    "CALCULATE_PLAN": "Optimalen Ferienplan berechnen",
+    "ADD_TO_CALENDAR": "Zum Kalender hinzufügen",
+    "ADD_TO_GOOGLE_CALENDAR": "Zu Google Kalender hinzufügen",
+    "ADD_TO_OUTLOOK_CALENDAR": "Zu Outlook Kalender hinzufügen",
+    "CALENDAR_TITLE": "Ferientage",
+    "CALENDAR_DESCRIPTION": "Strategischer Ferienplan mit {{daysUsed}} Ferientagen für {{totalDaysOff}} freie Tage ({{extraDays}} Bonustage).",
+    "ADD_TO_IOS_CALENDAR": "Zum iOS-Kalender hinzufügen"
   },
   "LANGUAGE": {
     "SELECT": "Sprache auswählen"

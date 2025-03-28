@@ -20,7 +20,22 @@
     "YOUR_VACATION": "Your Vacation",
     "EXTENDED_PERIOD": "Extended period",
     "AVAILABLE_DAYS": "Available vacation days",
-    "CALCULATE_PLAN": "Calculate plan"
+    "CALCULATE_PLAN": "Calculate plan",
+    "ADD_TO_CALENDAR": "Add to calendar",
+    "SELECTED_PERIOD": "Selected vacation period",
+    "ADD_TO_CALENDAR_OPTIONS": "Add to calendar directly",
+    "ADD_TO_GOOGLE_CALENDAR": "Add to Google Calendar",
+    "ADD_TO_OUTLOOK_CALENDAR": "Add to Outlook Calendar",
+    "GET_EMAIL_INVITATION": "Get calendar invitation via email",
+    "EMAIL_ADDRESS": "Email address",
+    "VALID_EMAIL_REQUIRED": "Please enter a valid email address",
+    "OPEN_EMAIL_WITH_INVITATION": "Open email with invitation",
+    "SEND_INVITATION_DIRECTLY": "Send invitation directly",
+    "CALENDAR_TITLE": "Vacation Days",
+    "CALENDAR_DESCRIPTION": "Strategic vacation plan using {{daysUsed}} vacation days to get {{totalDaysOff}} days off ({{extraDays}} bonus days).",
+    "CALENDAR_INVITE_SENT": "Calendar invitation has been sent to your email address.",
+    "CALENDAR_INVITE_ERROR": "Failed to send calendar invitation. Please try again.",
+    "ADD_TO_IOS_CALENDAR": "Add to iOS Calendar"
   },
   "LANGUAGE": {
     "SELECT": "Select language"

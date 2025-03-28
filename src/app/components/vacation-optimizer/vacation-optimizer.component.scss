@@ -279,3 +279,67 @@ app-vacation-optimizer {
 ion-card:last-child {
   margin-bottom: 32px;
 }
+
+.calendar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.google-calendar-btn, .outlook-calendar-btn {
+  --background: rgba(67, 33, 113, 0.05);
+  --color: #432171;
+  font-size: 0.85rem;
+  font-weight: 500;
+  --border-radius: 4px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  margin: 0;
+  
+  ion-icon {
+    margin-right: 6px;
+  }
+}
+
+.google-calendar-btn {
+  --background: rgba(66, 133, 244, 0.1);
+  --color: #4285F4;
+  
+  &:hover {
+    --background: rgba(66, 133, 244, 0.2);
+  }
+}
+
+.outlook-calendar-btn {
+  --background: rgba(0, 120, 212, 0.1);
+  --color: #0078D4;
+  
+  &:hover {
+    --background: rgba(0, 120, 212, 0.2);
+  }
+}
+
+@media (max-width: 576px) {
+  .calendar-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .google-calendar-btn, .outlook-calendar-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+.ios-calendar-btn {
+  --background: rgba(0, 122, 255, 0.1);
+  --color: #007AFF; // iOS blue
+  
+  &:hover {
+    --background: rgba(0, 122, 255, 0.2);
+  }
+}

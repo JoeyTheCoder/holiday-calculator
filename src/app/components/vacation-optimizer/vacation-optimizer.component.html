@@ -83,6 +83,25 @@
             <ion-icon name="time-outline"></ion-icon>
             <span>{{ period.totalDaysOff - period.daysUsed }} {{ 'VACATION.BONUS_DAYS_GAINED' | translate }}</span>
           </div>
+          
+          <!-- Replace the calendar modal button with direct calendar buttons -->
+          <div class="calendar-actions">
+            <ion-button size="small" class="google-calendar-btn" (click)="openGoogleCalendar(period)">
+              <ion-icon slot="start" name="logo-google"></ion-icon>
+              {{ 'VACATION.ADD_TO_GOOGLE_CALENDAR' | translate }}
+            </ion-button>
+            
+            <ion-button size="small" class="outlook-calendar-btn" (click)="openOutlookCalendar(period)">
+              <ion-icon slot="start" name="logo-microsoft"></ion-icon>
+              {{ 'VACATION.ADD_TO_OUTLOOK_CALENDAR' | translate }}
+            </ion-button>
+            
+            <!-- Only show on iOS -->
+            <ion-button *ngIf="platform.is('ios')" size="small" class="ios-calendar-btn" (click)="openNativeCalendar(period)">
+              <ion-icon slot="start" name="calendar-outline"></ion-icon>
+              {{ 'VACATION.ADD_TO_IOS_CALENDAR' | translate }}
+            </ion-button>
+          </div>
         </div>
       </div>
     </div>
