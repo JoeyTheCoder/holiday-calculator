@@ -11,6 +11,7 @@ ion-content {
   --background: linear-gradient(135deg, #3A1C71 0%, #D76D77 50%, #FFAF7B 100%) !important;
   --padding-start: 16px;
   --padding-end: 16px;
+  --padding-bottom: 32px;
 }
 
 // Results styling
@@ -331,4 +332,8 @@ ion-button[expand="block"] {
   .language-selector {
     margin-right: 8px;
   }
+}
+
+ion-card:last-of-type {
+  margin-bottom: 32px;
 }

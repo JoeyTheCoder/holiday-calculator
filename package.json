@@ -3,14 +3,17 @@
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "lint": "ng lint"
-  },
+"scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "lint": "ng lint",
+  "android": "npm run build && npx cap sync android && npx cap open android",
+  "ios": "npm run build && npx cap sync ios && npx cap open ios"
+},  
+
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.0.0",

@@ -269,3 +269,13 @@ ion-card {
     border-left: 3px solid #432171;
   }
 }
+
+app-vacation-optimizer {
+  display: block;
+  margin-bottom: 32px;
+}
+
+/* Or if you prefer to target the ion-card inside the component */
+ion-card:last-child {
+  margin-bottom: 32px;
+}
